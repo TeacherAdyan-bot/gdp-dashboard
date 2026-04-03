@@ -15,7 +15,7 @@ def get_base64(bin_file):
 
 bin_str = get_base64('my_background.jpg')
 
-# 2. EXPERT CSS (Symmetry & Integration Fix)
+# 2. THE EXPERT CSS FIX (Zero Gap & Full Integration)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -31,44 +31,32 @@ st.markdown(f"""
     /* Standardizes all cards to the same width and visual weight */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
-        padding: 20px 25px !important;
+        padding: 25px !important;
         border-radius: 25px !important;
         border: 4px solid #800000 !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
         margin-bottom: 20px !important;
         width: 100% !important;
-        min-height: 120px !important; 
+        min-height: 110px !important; 
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }}
-    .clock-style {{
-        background-color: #800000;
-        color: white;
-        padding: 8px 20px;
-        border-radius: 50px;
-        font-weight: bold;
-        border: 2px solid white;
-        margin: 0 auto 20px auto;
-        display: table;
+    /* EXPERT FIX: This forces the selectbox to stay INSIDE the padding of the card */
+    [data-testid="stVerticalBlock"] > div {{
+        gap: 0rem !important;
     }}
-    /* Selectbox specific styling to fit INSIDE the card */
     div[data-baseweb="select"] {{ 
         background-color: white !important; 
-        border-radius: 10px !important;
-        width: 100% !important;
+        border-radius: 10px !important; 
+        margin-top: 10px !important; /* Spacing between text and box inside card */
     }}
     div[data-baseweb="select"] * {{
         color: black !important;
         font-weight: bold !important;
-        text-shadow: none !important;
     }}
-    /* Remove default Streamlit spacing to keep elements inside the card boundary */
-    [data-testid="stVerticalBlock"] > div:has(div.unified-card) {{
-        gap: 0rem !important;
-    }}
-    /* Hide the default floating label */
+    /* Completely hide the floating Streamlit label */
     [data-testid="stWidgetLabel"] {{
         display: none !important;
     }}
@@ -82,23 +70,22 @@ try:
 except: pass
 
 bahrain_tz = pytz.timezone('Asia/Bahrain')
-st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
 # Main Title Card
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. INTEGRATED SELECTION CARD (Text and Box INSIDE the same card)
+# 4. EXPERT SELECTION (FULLY INTEGRATED INSIDE THE BOX)
+# We open the card, put everything inside, then close it.
 st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-st.markdown('<h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
-
-# Creating a sub-column to control the width of the white box inside the navy card
+st.markdown('<h3 style="margin: 0;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 2, 1])
 with c2:
     num_trials = st.selectbox(
-        "Select Number of Experimental Trials",
-        options=[3, 4],
-        index=1,
-        label_visibility="collapsed" # Hidden because we use the H3 above
+        "Trials", 
+        options=[3, 4], 
+        index=1, 
+        label_visibility="collapsed"
     )
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -114,13 +101,14 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION & RESULTS
+# 6. CALCULATION & SCIENTIFIC CONCLUSION
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
+        # Determine m (constant [B])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -128,6 +116,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
+        # Determine n (constant [A])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -150,16 +139,30 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
+            # --- SCIENTIFIC EXPLANATION ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
-            st.write("The rate is proportional to the concentration of A to the power of m and B to the power of n. According to collision theory, increasing concentration means there are more particles per volume, leading to more collisions and a faster rate.")
+            st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
+                     f"According to collision theory, increasing concentration means there are more particles per volume, "
+                     f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
+                     f"reflect the specific speed and order of this reaction.")
+            
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.write(f"**For reactant A (Order {m}):**")
+                st.write(f"- Doubling [A] increases the rate by a factor of {2**m}.")
+                st.write(f"- Halving [A] decreases the rate by a factor of {2**m}.")
+            with col_b:
+                st.write(f"**For reactant B (Order {n}):**")
+                st.write(f"- Doubling [B] increases the rate by a factor of {2**n}.")
+                st.write(f"- Halving [B] decreases the rate by a factor of {2**n}.")
             
             st.markdown("---")
             st.latex(rf"FINAL \ RATE \ LAW: Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Error: Could not find trials with constant concentrations.")
+            st.error("Scientific Error: Could not find trials with constant concentrations.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 

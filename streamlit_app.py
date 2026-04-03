@@ -13,10 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Background image handling - ensure 'my_background.jpg' is in your GitHub folder
+# Background image handling - Ensure 'my_background.jpg' is in your GitHub folder
 bin_str = get_base64('my_background.jpg')
 
-# 2. EXPERT BRANDING CSS (Symmetry & Selection Box Fix)
+# 2. SYSTEMATIC BRANDING CSS (Fixes alignment and card symmetry)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -37,23 +37,24 @@ st.markdown(f"""
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
         margin-bottom: 20px !important;
         width: 100% !important;
-        min-height: 120px !important; 
+        min-height: 100px !important; 
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }}
-    /* White input boxes for readability */
-    div[data-baseweb="input"], div[data-baseweb="select"] {{
+    /* Systematic sizing for inputs and dropdowns to fit the page width */
+    div[data-baseweb="select"], div[data-baseweb="input"] {{
         background-color: white !important;
         border-radius: 10px !important;
+        width: 100% !important;
     }}
-    div[data-baseweb="input"] *, div[data-baseweb="select"] * {{
+    div[data-baseweb="select"] *, div[data-baseweb="input"] * {{
         color: black !important;
         font-weight: bold !important;
         text-shadow: none !important;
     }}
-    /* FIX: Ensures the 'Select Trials' label stays hidden so the box fits in the card */
+    /* Hides floating labels for a cleaner integrated look inside cards */
     .selection-container [data-testid="stWidgetLabel"] {{
         display: none !important;
     }}
@@ -70,23 +71,19 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20p
 
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. EXPERT SELECTION (INTEGRATED INSIDE THE CARD)
-st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-
-# We place the title and the widget logic inside the same HTML container
-st.markdown('<h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
-
-# Columns help keep the white box centered and smaller inside the navy card
-c1, c2, c3 = st.columns([1, 2, 1])
+# 4. FIXED SELECTION BOX (Inside Navy Card with Systematic Width)
+st.markdown('<div class="unified-card selection-container">', unsafe_allow_html=True)
+st.markdown('<h3 style="margin: 0; padding-bottom: 15px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 4, 1]) 
 with c2:
     num_trials = st.selectbox(
         "Trials", 
         options=[3, 4], 
         index=1, 
-        label_visibility="collapsed" # This hides the "Trials" text that usually floats outside
+        label_visibility="collapsed"
     )
-
 st.markdown('</div>', unsafe_allow_html=True)
+
 # 5. DYNAMIC TRIAL INPUTS
 cols = st.columns(num_trials)
 trials_data = []
@@ -99,7 +96,7 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION LOGIC & SCIENTIFIC EXPLANATION
+# 6. ORIGINAL CALCULATION LOGIC & SCIENTIFIC CONCLUSION
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
@@ -124,12 +121,21 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
 
         if m is not None and n is not None:
             overall_order = m + n
-            t_last = active_trials[-1] # Calculating k using the last trial
+            # Calculating k using the last trial in the active set
+            t_last = active_trials[-1]
             k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
             # --- UNIT CALCULATION LOGIC ---
-            units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
-            unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
+            if overall_order == 0:
+                unit = "M/s"
+            elif overall_order == 1:
+                unit = "s⁻¹"
+            elif overall_order == 2:
+                unit = "M⁻¹s⁻¹"
+            elif overall_order == 3:
+                unit = "M⁻²s⁻¹"
+            else:
+                unit = f"M^{1-overall_order}s⁻¹"
 
             st.balloons()
             st.markdown('<div class="unified-card">', unsafe_allow_html=True)
@@ -162,10 +168,9 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Error: Could not find trials with constant concentrations for calculation.")
+            st.error("Scientific Error: Could not find trials with constant concentrations for calculation.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 
 # 7. FOOTER
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)
-  

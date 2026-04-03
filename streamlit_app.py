@@ -63,25 +63,24 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-st.markdown("""
-    <div class="unified-card">
-        <h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1>
-    </div>
-    """, unsafe_allow_html=True)
+# Main Title Card
+st.markdown('<div class="unified-card"><h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# EXPERT SELECTION (Inside the Box) ---
+# --- 4. EXPERT SELECTION (NOW INSIDE THE BOX) ---
+# Opening the navy box div
 st.markdown('<div class="unified-card">', unsafe_allow_html=True)
 
-# We use a column to center the dropdown slightly for a better look
-col_mid = st.columns([1, 2, 1])[1]
-with col_mid:
+# Creating columns to keep the dropdown centered and proportional
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
     num_trials = st.selectbox(
-        "Select Number of Experimental Trials", # This label now stays inside the navy background
+        "Select Number of Experimental Trials",
         options=[3, 4],
         index=1,
         help="Choose 3 or 4 trials based on your experimental data set."
     )
 
+# Closing the navy box div
 st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. Dynamic Input Layout

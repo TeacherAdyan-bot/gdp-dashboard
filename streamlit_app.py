@@ -13,9 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
+# Ensure 'my_background.jpg' is in your GitHub repository folder
 bin_str = get_base64('my_background.jpg')
 
-# 2. THE EXPERT CSS FIX (Zero Gap & Full Integration)
+# 2. EXPERT BRANDING CSS (Symmetry & Card Integration)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -28,7 +29,7 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Standardizes all cards to the same width and visual weight */
+    /* Standardizes all cards to the same width and height for symmetry */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
         padding: 25px !important;
@@ -37,26 +38,28 @@ st.markdown(f"""
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
         margin-bottom: 20px !important;
         width: 100% !important;
-        min-height: 110px !important; 
+        min-height: 120px !important; 
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }}
-    /* EXPERT FIX: This forces the selectbox to stay INSIDE the padding of the card */
+    /* Forces the selectbox container to respect card boundaries */
     [data-testid="stVerticalBlock"] > div {{
         gap: 0rem !important;
     }}
     div[data-baseweb="select"] {{ 
         background-color: white !important; 
-        border-radius: 10px !important; 
-        margin-top: 10px !important; /* Spacing between text and box inside card */
+        border-radius: 10px !important;
+        width: 100% !important;
+        margin-top: 10px !important;
     }}
     div[data-baseweb="select"] * {{
         color: black !important;
         font-weight: bold !important;
+        text-shadow: none !important;
     }}
-    /* Completely hide the floating Streamlit label */
+    /* Hides default Streamlit labels to use custom integrated headers */
     [data-testid="stWidgetLabel"] {{
         display: none !important;
     }}
@@ -64,8 +67,9 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. HEADER & CLOCK
+# 3. SCHOOL LOGO & CLOCK
 try:
+    # Ensure 'britus_banner.png' is in your GitHub folder
     st.image("britus_banner.png", use_container_width=True)
 except: pass
 
@@ -75,8 +79,7 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20p
 # Main Title Card
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. EXPERT SELECTION (FULLY INTEGRATED INSIDE THE BOX)
-# We open the card, put everything inside, then close it.
+# 4. EXPERT SELECTION (FULLY INTEGRATED WITHIN CARD)
 st.markdown('<div class="unified-card">', unsafe_allow_html=True)
 st.markdown('<h3 style="margin: 0;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 2, 1])
@@ -96,6 +99,7 @@ trials_data = []
 for i, col in enumerate(cols, 1):
     with col:
         st.markdown(f'<div class="unified-card"><h3 style="margin: 0;">Trial {i}</h3></div>', unsafe_allow_html=True)
+        # Scientific calculation inputs
         a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
         b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
@@ -108,7 +112,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Determine m (constant [B])
+        # Logarithmic determination of reaction orders
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -116,7 +120,6 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
-        # Determine n (constant [A])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -139,7 +142,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
-            # --- SCIENTIFIC EXPLANATION ---
+            # --- SCIENTIFIC EXPLANATION (Collision Theory) ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
@@ -162,8 +165,9 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: Could not find trials with constant concentrations.")
+            st.error("Scientific Error: Could not find trials with constant concentrations. Verify experimental values.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 
+# 7. FOOTER
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

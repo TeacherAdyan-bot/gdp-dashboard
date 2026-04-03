@@ -13,10 +13,9 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Background image handling - ensure 'my_background.jpg' is in your repository
 bin_str = get_base64('my_background.jpg')
 
-# 2. SYSTEMATIC BRANDING CSS (Fixes alignment and card symmetry)
+# 2. SYSTEMATIC BRANDING CSS (Precision Alignment)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -42,13 +41,13 @@ st.markdown(f"""
         justify-content: center;
         align-items: center;
     }}
-    /* SYSTEMATIC DROPDOWN FIX: Forces the box to stay inside the navy container */
+    /* DROPDOWN SYSTEMATIC FIX: Matches the exact width of your Trial cards */
     div[data-baseweb="select"] {{
         background-color: white !important;
         border-radius: 10px !important;
         width: 100% !important;
-        max-width: 600px !important; /* Prevents awkward stretching on wide screens */
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        margin: 10px 0 !important;
     }}
     div[data-baseweb="select"] * {{
         color: black !important;
@@ -76,21 +75,21 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# Main Title
+# Title Card
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. FIXED SELECTION CARD (Text and Dropdown centered together)
-st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-st.markdown('<h3 style="margin: 0; padding-bottom: 15px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
+# 4. FIXED SELECTION (Systematic Width - No navy box to prevent displacement)
+st.markdown("### Select Number of Experimental Trials")
+# This creates a systematic width for the dropdown that fits the page flow
 num_trials = st.selectbox(
-    "Select Number of Experimental Trials", 
+    "Trials", 
     options=[3, 4], 
     index=1, 
     label_visibility="collapsed"
 )
-st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. DYNAMIC TRIAL INPUTS
+st.markdown("<br>", unsafe_allow_html=True)
 cols = st.columns(num_trials)
 trials_data = []
 
@@ -142,10 +141,8 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
-            st.write(f"The rate is proportional to [A]^{m} and [B]^{n}. According to collision theory, "
-                     f"increasing concentration leads to more collisions and a faster rate.")
+            st.write(f"The rate is proportional to [A]^{m} and [B]^{n}. According to collision theory, increasing concentration means there are more particles per volume, leading to more collisions and a faster rate.")
             
-            # Show doubling logic
             c_a, c_b = st.columns(2)
             with c_a:
                 st.write(f"**Reactant A (Order {m})**")

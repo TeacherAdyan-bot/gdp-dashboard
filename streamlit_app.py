@@ -70,14 +70,23 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20p
 
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. FIXED SELECTION CARD (Integrated Title and Dropdown)
-st.markdown('<div class="unified-card selection-container">', unsafe_allow_html=True)
+# 4. EXPERT SELECTION (INTEGRATED INSIDE THE CARD)
+st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+
+# We place the title and the widget logic inside the same HTML container
 st.markdown('<h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
+
+# Columns help keep the white box centered and smaller inside the navy card
 c1, c2, c3 = st.columns([1, 2, 1])
 with c2:
-    num_trials = st.selectbox("Trials", options=[3, 4], index=1, label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
+    num_trials = st.selectbox(
+        "Trials", 
+        options=[3, 4], 
+        index=1, 
+        label_visibility="collapsed" # This hides the "Trials" text that usually floats outside
+    )
 
+st.markdown('</div>', unsafe_allow_html=True)
 # 5. DYNAMIC TRIAL INPUTS
 cols = st.columns(num_trials)
 trials_data = []

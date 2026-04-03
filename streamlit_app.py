@@ -1,151 +1,66 @@
 import streamlit as st
-import pandas as pd
 import math
-from pathlib import Path
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+# Page setup
+st.set_page_config(page_title="Rate Law Determinator", page_icon="🧪")
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+st.title("🧪 Reaction Rate Law & Order Determinator")
+st.write("Enter your experimental data below. Use scientific notation like **2e-3** for small numbers.")
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
-
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
-
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
+# Organizing inputs into 4 columns for 4 trials
 cols = st.columns(4)
+trials = []
 
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
+for i, col in enumerate(cols, 1):
     with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
+        st.markdown(f"### Trial {i}")
+        a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
+        b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
+        r = st.number_input(f"Initial Rate", key=f"r{i}", format="%.4e", value=0.001)
+        trials.append({'a': a, 'b': b, 'rate': r})
 
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
+if st.button("Calculate Reaction Order & k"):
+    m, n = None, None
 
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+    # Logic to find m (A) where B is constant
+    for i in range(4):
+        for j in range(4):
+            if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
+                m = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['a'] / trials[i]['a']))
+                break
+        if m is not None: break
+
+    # Logic to find n (B) where A is constant
+    for i in range(4):
+        for j in range(4):
+            if i != j and trials[i]['a'] == trials[j]['a'] and trials[i]['b'] != trials[j]['b']:
+                n = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['b'] / trials[i]['b']))
+                break
+        if n is not None: break
+
+    if m is not None and n is not None:
+        overall = m + n
+        t4 = trials[3]
+        k = t4['rate'] / ((t4['a']**m) * (t4['b']**n))
+        
+        # Determine Units
+        units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
+        unit = units.get(overall, f"M^{1-overall}s⁻¹")
+
+        # --- Display Results ---
+        st.success("## Analysis Results")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Order of A (m)", m)
+        c2.metric("Order of B (n)", n)
+        c3.metric("Overall Order", overall)
+        
+        st.info(f"**Rate Constant (k):** {k:.4e} {unit}")
+
+        st.subheader("Scientific Explanation")
+        st.write(f"The rate is proportional to $[A]^{m}$ and $[B]^{n}$. According to **Collision Theory**, increasing concentration increases the number of particles per volume, leading to more frequent collisions.")
+        st.write(f"- For **A** (Order {m}): Doubling concentration increases rate by {2**m}x.")
+        st.write(f"- For **B** (Order {n}): Doubling concentration increases rate by {2**n}x.")
+        
+        st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
+    else:
+        st.error("Error: Could not find trials with constant concentrations. Please check your data table.")

@@ -13,10 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Ensure 'my_background.jpg' is in your GitHub repository folder
+# Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. EXPERT BRANDING CSS (Symmetry & Card Integration)
+# 2. EXPERT TARGETED CSS
 st.markdown(f"""
     <style>
     .stApp {{
@@ -24,15 +24,14 @@ st.markdown(f"""
         background-size: cover;
         background-attachment: fixed;
     }}
-    h1, h2, h3, p, span, label, [data-testid="stWidgetLabel"] {{
+    h1, h2, h3, p, span, label {{
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Standardizes all cards to the same width and height for symmetry */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
-        padding: 25px !important;
+        padding: 20px 25px !important;
         border-radius: 25px !important;
         border: 4px solid #800000 !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
@@ -44,75 +43,61 @@ st.markdown(f"""
         justify-content: center;
         align-items: center;
     }}
-    /* Forces the selectbox container to respect card boundaries */
-    [data-testid="stVerticalBlock"] > div {{
-        gap: 0rem !important;
-    }}
-    div[data-baseweb="select"] {{ 
-        background-color: white !important; 
+    /* White input boxes for readability */
+    div[data-baseweb="input"], div[data-baseweb="select"] {{
+        background-color: white !important;
         border-radius: 10px !important;
-        width: 100% !important;
-        margin-top: 10px !important;
     }}
-    div[data-baseweb="select"] * {{
+    div[data-baseweb="input"] *, div[data-baseweb="select"] * {{
         color: black !important;
         font-weight: bold !important;
         text-shadow: none !important;
     }}
-    /* Hides default Streamlit labels to use custom integrated headers */
-    [data-testid="stWidgetLabel"] {{
+    /* SURGICAL FIX: Only hide the label for the 'Selection' box */
+    .selection-container [data-testid="stWidgetLabel"] {{
         display: none !important;
     }}
-    input {{ color: black !important; text-shadow: none !important; font-weight: bold !important; }}
     </style>
     """, unsafe_allow_html=True)
 
-# 3. SCHOOL LOGO & CLOCK
+# 3. BRANDING & CLOCK
 try:
-    # Ensure 'britus_banner.png' is in your GitHub folder
     st.image("britus_banner.png", use_container_width=True)
 except: pass
 
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# Main Title Card
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. EXPERT SELECTION (FULLY INTEGRATED WITHIN CARD)
-st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-st.markdown('<h3 style="margin: 0;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
+# 4. INTEGRATED SELECTION CARD
+st.markdown('<div class="unified-card selection-container">', unsafe_allow_html=True)
+st.markdown('<h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 2, 1])
 with c2:
-    num_trials = st.selectbox(
-        "Trials", 
-        options=[3, 4], 
-        index=1, 
-        label_visibility="collapsed"
-    )
+    num_trials = st.selectbox("Trials", options=[3, 4], index=1)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 5. DYNAMIC TRIAL INPUTS
+# 5. DYNAMIC TRIAL INPUTS (Labels Restored)
 cols = st.columns(num_trials)
 trials_data = []
 
 for i, col in enumerate(cols, 1):
     with col:
         st.markdown(f'<div class="unified-card"><h3 style="margin: 0;">Trial {i}</h3></div>', unsafe_allow_html=True)
-        # Scientific calculation inputs
         a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
         b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION & SCIENTIFIC CONCLUSION
+# 6. CALCULATION LOGIC (From your original code)
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Logarithmic determination of reaction orders
+        # Logic to find m (constant [B])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -120,6 +105,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
+        # Logic to find n (constant [A])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -129,8 +115,10 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
 
         if m is not None and n is not None:
             overall_order = m + n
+            # Using Trial 1 for k calculation
             k = active_trials[0]['rate'] / ((active_trials[0]['a']**m) * (active_trials[0]['b']**n))
             
+            # Unit logic
             units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
             unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
 
@@ -139,35 +127,19 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.subheader("ANALYSIS COMPLETE:")
             st.write(f"Order for reactant A (m): {m}")
             st.write(f"Order for reactant B (n): {n}")
-            st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
-            # --- SCIENTIFIC EXPLANATION (Collision Theory) ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
-                     f"According to collision theory, increasing concentration means there are more particles per volume, "
-                     f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
-                     f"reflect the specific speed and order of this reaction.")
+                     f"According to collision theory, increasing concentration leads to more collisions and a faster rate.")
             
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.write(f"**For reactant A (Order {m}):**")
-                st.write(f"- Doubling [A] increases the rate by a factor of {2**m}.")
-                st.write(f"- Halving [A] decreases the rate by a factor of {2**m}.")
-            with col_b:
-                st.write(f"**For reactant B (Order {n}):**")
-                st.write(f"- Doubling [B] increases the rate by a factor of {2**n}.")
-                st.write(f"- Halving [B] decreases the rate by a factor of {2**n}.")
-            
-            st.markdown("---")
-            st.latex(rf"FINAL \ RATE \ LAW: Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
+            st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: Could not find trials with constant concentrations. Verify experimental values.")
+            st.error("Error: Could not find trials with constant concentrations.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 
-# 7. FOOTER
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

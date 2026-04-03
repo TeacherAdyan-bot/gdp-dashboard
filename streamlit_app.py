@@ -1,66 +1,64 @@
 import streamlit as st
 import math
+from datetime import datetime
+import pytz
 
-# Page setup
-st.set_page_config(page_title="Rate Law Determinator", page_icon="🧪")
+# 1. Setup
+st.set_page_config(page_title="Britus International School", layout="wide")
 
+st.markdown("""
+    <style>
+    .stApp {
+        background: url("https://images.unsplash.com/photo-1532187891246-1f3b0fe44383?auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+    }
+    .calculator-box {
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 20px;
+        border: 4px solid #800000;
+        box-shadow: 10px 10px 20px rgba(0,0,0,0.3);
+    }
+    .clock-style {
+        background-color: #002147;
+        color: white;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        width: 200px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 2. Banner & Clock
+st.image("britus_banner.png", use_container_width=True)
+
+bahrain_tz = pytz.timezone('Asia/Bahrain')
+st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
+
+# 3. Calculator Box
+st.markdown('<div class="calculator-box">', unsafe_allow_html=True)
 st.title("🧪 Reaction Rate Law & Order Determinator")
-st.write("Enter your experimental data below. Use scientific notation like **2e-3** for small numbers.")
 
-# Organizing inputs into 4 columns for 4 trials
 cols = st.columns(4)
 trials = []
-
 for i, col in enumerate(cols, 1):
     with col:
         st.markdown(f"### Trial {i}")
-        a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
-        b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
-        r = st.number_input(f"Initial Rate", key=f"r{i}", format="%.4e", value=0.001)
+        a = st.number_input(f"Initial [A]", key=f"a{i}", format="%.4e", value=0.1)
+        b = st.number_input(f"Initial [B]", key=f"b{i}", format="%.4e", value=0.1)
+        r = st.number_input(f"Rate", key=f"r{i}", format="%.4e", value=0.001)
         trials.append({'a': a, 'b': b, 'rate': r})
 
-if st.button("Calculate Reaction Order & k"):
-    m, n = None, None
+if st.button("Calculate"):
+    # (Your math logic)
+    m = round(math.log(trials[1]['rate'] / trials[0]['rate']) / math.log(trials[1]['a'] / trials[0]['a']))
+    n = round(math.log(trials[2]['rate'] / trials[0]['rate']) / math.log(trials[2]['b'] / trials[0]['b']))
+    k = trials[0]['rate'] / ((trials[0]['a']**m) * (trials[0]['b']**n))
+    
+    st.balloons()
+    st.success(f"Order A: {m} | Order B: {n}")
+    st.info(f"Rate Constant (k): {k:.4e}")
+    st.latex(rf"Rate = {k:.4e} \ [A]^{{{m}}} [B]^{{{n}}}")
 
-    # Logic to find m (A) where B is constant
-    for i in range(4):
-        for j in range(4):
-            if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
-                m = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['a'] / trials[i]['a']))
-                break
-        if m is not None: break
-
-    # Logic to find n (B) where A is constant
-    for i in range(4):
-        for j in range(4):
-            if i != j and trials[i]['a'] == trials[j]['a'] and trials[i]['b'] != trials[j]['b']:
-                n = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['b'] / trials[i]['b']))
-                break
-        if n is not None: break
-
-    if m is not None and n is not None:
-        overall = m + n
-        t4 = trials[3]
-        k = t4['rate'] / ((t4['a']**m) * (t4['b']**n))
-        
-        # Determine Units
-        units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
-        unit = units.get(overall, f"M^{1-overall}s⁻¹")
-
-        # --- Display Results ---
-        st.success("## Analysis Results")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Order of A (m)", m)
-        c2.metric("Order of B (n)", n)
-        c3.metric("Overall Order", overall)
-        
-        st.info(f"**Rate Constant (k):** {k:.4e} {unit}")
-
-        st.subheader("Scientific Explanation")
-        st.write(f"The rate is proportional to $[A]^{m}$ and $[B]^{n}$. According to **Collision Theory**, increasing concentration increases the number of particles per volume, leading to more frequent collisions.")
-        st.write(f"- For **A** (Order {m}): Doubling concentration increases rate by {2**m}x.")
-        st.write(f"- For **B** (Order {n}): Doubling concentration increases rate by {2**n}x.")
-        
-        st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
-    else:
-        st.error("Error: Could not find trials with constant concentrations. Please check your data table.")
+st.markdown('</div>', unsafe_allow_html=True)

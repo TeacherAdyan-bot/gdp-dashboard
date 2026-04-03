@@ -13,10 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Ensure 'my_background.jpg' is in your GitHub folder
+# Ensure 'my_background.jpg' is in your GitHub repository
 bin_str = get_base64('my_background.jpg')
 
-# 2. EXPERT CSS (Branding, Alignment, and Card Uniformity)
+# 2. EXPERT CSS (Uniform Card Dimensions & Branding)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -29,15 +29,19 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Standardizes all navy cards to the same width and style */
+    /* Standardizes all cards to the same width and visual weight */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
-        padding: 20px !important;
+        padding: 25px !important;
         border-radius: 25px !important;
         border: 4px solid #800000 !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
-        margin-bottom: 15px !important;
-        width: 100%;
+        margin-bottom: 20px !important;
+        width: 100% !important;
+        min-height: 110px !important; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }}
     .clock-style {{
         background-color: #800000;
@@ -49,7 +53,7 @@ st.markdown(f"""
         margin: 0 auto 20px auto;
         display: table;
     }}
-    /* Styling for the white dropdown box */
+    /* Dropdown Styling */
     div[data-baseweb="select"] {{ 
         background-color: white !important; 
         border-radius: 10px !important; 
@@ -57,6 +61,10 @@ st.markdown(f"""
     div[data-baseweb="select"] * {{
         color: black !important;
         font-weight: bold !important;
+    }}
+    /* Completely hide the external Streamlit label to prevent layout shifts */
+    [data-testid="stWidgetLabel"] {{
+        display: none !important;
     }}
     input {{ color: black !important; text-shadow: none !important; font-weight: bold !important; }}
     </style>
@@ -70,27 +78,23 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-st.markdown('<div class="unified-card"><h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
+# Main Title
+st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. EXPERT SELECTION (FULL-WIDTH CARD FIX)
-st.markdown("""
-    <div class="unified-card">
-        <h3 style="margin: 0;">Select Number of Experimental Trials</h3>
-    </div>
-    """, unsafe_allow_html=True)
+# 4. EXPERT SELECTION (FULL-WIDTH & SYMMETRICAL)
+st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+st.markdown('<h3 style="margin: 0; padding-bottom: 15px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 2, 1])
+with c2:
+    num_trials = st.selectbox(
+        "Select Number of Experimental Trials",
+        options=[3, 4],
+        index=1,
+        label_visibility="collapsed"
+    )
+st.markdown('</div>', unsafe_allow_html=True)
 
-with st.container():
-    # Centering the actual dropdown while the header box above is full-width
-    c1, c2, c3 = st.columns([1, 1.5, 1])
-    with c2:
-        num_trials = st.selectbox(
-            "Select Number of Experimental Trials",
-            options=[3, 4],
-            index=1,
-            label_visibility="collapsed"
-        )
-
-# 5. DYNAMIC INPUT LAYOUT
+# 5. DYNAMIC TRIAL INPUTS
 cols = st.columns(num_trials)
 trials_data = []
 
@@ -102,14 +106,14 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION LOGIC
+# 6. CALCULATION & SCIENTIFIC CONCLUSION
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Logic to find m (constant [B])
+        # Determine order m (where [B] is constant)
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -117,7 +121,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
-        # Logic to find n (constant [A])
+        # Determine order n (where [A] is constant)
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -140,7 +144,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
-            # --- SCIENTIFIC EXPLANATION RESTORED ---
+            # --- ORIGINAL SCIENTIFIC EXPLANATION ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
@@ -163,7 +167,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: No constant concentration pairs found. Please check Trial values.")
+            st.error("Scientific Error: Could not find trials with constant concentrations. Check your input data.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 

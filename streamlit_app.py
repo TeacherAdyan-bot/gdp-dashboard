@@ -27,21 +27,31 @@ try:
     """
     st.markdown(bg_style, unsafe_allow_html=True)
 except:
-    st.markdown("<style>.stApp {background-color: #f0f2f6;}</style>", unsafe_allow_html=True)
+    st.markdown("<style>.stApp {background-color: #002147;}</style>", unsafe_allow_html=True)
 
-# 3. Custom Styling for the Calculator & Clock
+# 3. Custom Styling (White Font & High Visibility)
 st.markdown("""
     <style>
+    /* The main boundary box */
     .calculator-container {
-        background-color: rgba(255, 255, 255, 0.97);
+        background-color: rgba(0, 33, 71, 0.85); /* Dark Blue with transparency */
         padding: 35px;
         border-radius: 25px;
-        border: 5px solid #800000; /* Britus Maroon */
-        box-shadow: 0px 15px 35px rgba(0,0,0,0.5);
+        border: 4px solid #800000; /* Britus Maroon */
+        box-shadow: 0px 15px 35px rgba(0,0,0,0.6);
         margin-top: 10px;
+        color: white; /* Forces white text inside the box */
     }
+    
+    /* Making all Streamlit labels and text white */
+    .stMarkdown, p, span, label, h1, h2, h3 {
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* Styling the Clock */
     .clock-style {
-        background-color: #002147; /* Britus Dark Blue */
+        background-color: #800000; 
         color: white;
         padding: 12px 25px;
         border-radius: 50px;
@@ -49,6 +59,12 @@ st.markdown("""
         display: inline-block;
         margin-bottom: 10px;
         border: 2px solid white;
+    }
+
+    /* Making the number inputs stand out */
+    .stNumberInput input {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        color: black !important; /* Keep the actual numbers black for readability */
     }
     </style>
     """, unsafe_allow_html=True)
@@ -66,8 +82,8 @@ st.markdown(f"<div class='clock-style'>🕒 Bahrain Time: {now.strftime('%H:%M:%
 
 # 6. Calculator Content
 st.markdown('<div class="calculator-container">', unsafe_allow_html=True)
-st.markdown("<h2 style='color:#002147; text-align:center;'>🧪 Chemical Kinetics: Rate Law Determinator</h2>", unsafe_allow_html=True)
-st.write("---")
+st.markdown("<h2 style='text-align:center;'>🧪 Chemical Kinetics: Rate Law Determinator</h2>", unsafe_allow_html=True)
+st.write("Enter experimental data. Scientific notation (e.g., **2e-3**) is supported.")
 
 cols = st.columns(4)
 trials = []
@@ -82,7 +98,7 @@ for i, col in enumerate(cols, 1):
 if st.button("Calculate Reaction Order & k"):
     m, n = None, None
     
-    # Math Logic to find m and n
+    # Math Logic
     for i in range(4):
         for j in range(4):
             if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
@@ -104,11 +120,11 @@ if st.button("Calculate Reaction Order & k"):
         units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
         unit = units.get(overall, f"M^{1-overall}s⁻¹")
 
-        st.success(f"Analysis Complete! Order A: {m} | Order B: {n} | Overall: {overall}")
+        st.success(f"Analysis Complete! Order A: {m} | Order B: {n}")
         st.info(f"Rate Constant (k): {k:.4e} {unit}")
         st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
     else:
         st.error("Error: Check your concentration data for constant values.")
 
 st.markdown('</div>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: white; margin-top: 15px;'><b>Learning Without Limits - Science Department</b></p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; margin-top: 15px;'><b>Learning Without Limits - Science Department</b></p>", unsafe_allow_html=True)

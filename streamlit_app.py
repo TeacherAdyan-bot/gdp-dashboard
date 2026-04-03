@@ -13,9 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
+# Load background (Ensure 'my_background.jpg' is in your GitHub folder)
 bin_str = get_base64('my_background.jpg')
 
-# 2. Expert CSS (Branding & Label Alignment)
+# 2. Expert CSS (Branding & Widget Alignment)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -28,11 +29,9 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Forces the selectbox label to be centered and white within the card */
+    /* Centers the white dropdown and keeps labels clean */
     [data-testid="stWidgetLabel"] p {{
-        font-size: 1.1rem !important;
-        font-weight: bold !important;
-        margin-bottom: 10px !important;
+        display: none; /* Hides the default Streamlit label to use our custom one */
     }}
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
@@ -67,17 +66,22 @@ st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('
 
 st.markdown('<div class="unified-card"><h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# --- 4. EXPERT SELECTION (FIXED INSIDE BOX) ---
+# --- 4. EXPERT SELECTION (FIXED: LABEL INSIDE BOX) ---
+st.markdown("""
+    <div class="unified-card">
+        <h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
 with st.container():
-    st.markdown('<div class="unified-card">', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         num_trials = st.selectbox(
             "Select Number of Experimental Trials",
             options=[3, 4],
-            index=1
+            index=1,
+            label_visibility="collapsed"
         )
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. Dynamic Input Layout
 cols = st.columns(num_trials)
@@ -98,6 +102,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
+        # Find m (constant [B])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -105,6 +110,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
+        # Find n (constant [A])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -126,8 +132,9 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.write(f"Order for reactant B (n): {n}")
             st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
+            
+            # --- SCIENTIFIC EXPLANATION (RESTORED) ---
             st.markdown("---")
-            # --- YOUR ORIGINAL SCIENTIFIC EXPLANATION RESTORED ---
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
                      f"According to collision theory, increasing concentration means there are more particles per volume, "
@@ -149,7 +156,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: No constant concentration pairs found.")
+            st.error("Scientific Error: No constant concentration pairs found. Please check experimental data.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 

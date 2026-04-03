@@ -69,9 +69,19 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# 4. Expert Selection
+# EXPERT SELECTION (Inside the Box) ---
 st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-num_trials = st.selectbox("Select Number of Experimental Trials", options=[3, 4], index=1)
+
+# We use a column to center the dropdown slightly for a better look
+col_mid = st.columns([1, 2, 1])[1]
+with col_mid:
+    num_trials = st.selectbox(
+        "Select Number of Experimental Trials", # This label now stays inside the navy background
+        options=[3, 4],
+        index=1,
+        help="Choose 3 or 4 trials based on your experimental data set."
+    )
+
 st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. Dynamic Input Layout

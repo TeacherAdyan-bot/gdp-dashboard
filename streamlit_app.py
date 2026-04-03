@@ -13,10 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Background image handling
+# Background image handling - ensure 'my_background.jpg' is in your GitHub folder
 bin_str = get_base64('my_background.jpg')
 
-# 2. EXPERT TARGETED CSS
+# 2. EXPERT BRANDING CSS (Symmetry & Selection Box Fix)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -53,7 +53,7 @@ st.markdown(f"""
         font-weight: bold !important;
         text-shadow: none !important;
     }}
-    /* SURGICAL FIX: Only hide the label for the 'Selection' box */
+    /* FIX: Ensures the 'Select Trials' label stays hidden so the box fits in the card */
     .selection-container [data-testid="stWidgetLabel"] {{
         display: none !important;
     }}
@@ -70,15 +70,15 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 20p
 
 st.markdown('<div class="unified-card"><h1 style="margin: 0;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. INTEGRATED SELECTION CARD
+# 4. FIXED SELECTION CARD (Integrated Title and Dropdown)
 st.markdown('<div class="unified-card selection-container">', unsafe_allow_html=True)
 st.markdown('<h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 2, 1])
 with c2:
-    num_trials = st.selectbox("Trials", options=[3, 4], index=1)
+    num_trials = st.selectbox("Trials", options=[3, 4], index=1, label_visibility="collapsed")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 5. DYNAMIC TRIAL INPUTS (Labels Restored)
+# 5. DYNAMIC TRIAL INPUTS
 cols = st.columns(num_trials)
 trials_data = []
 
@@ -90,7 +90,7 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION LOGIC (From your original code)
+# 6. CALCULATION LOGIC & SCIENTIFIC EXPLANATION
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
@@ -115,10 +115,10 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
 
         if m is not None and n is not None:
             overall_order = m + n
-            # Using Trial 1 for k calculation
-            k = active_trials[0]['rate'] / ((active_trials[0]['a']**m) * (active_trials[0]['b']**n))
+            t_last = active_trials[-1] # Calculating k using the last trial
+            k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
-            # Unit logic
+            # --- UNIT CALCULATION LOGIC ---
             units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
             unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
 
@@ -127,19 +127,36 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.subheader("ANALYSIS COMPLETE:")
             st.write(f"Order for reactant A (m): {m}")
             st.write(f"Order for reactant B (n): {n}")
+            st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
+            # --- SCIENTIFIC EXPLANATION (Collision Theory) ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
-                     f"According to collision theory, increasing concentration leads to more collisions and a faster rate.")
+                     f"According to collision theory, increasing concentration means there are more particles per volume, "
+                     f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
+                     f"reflect the specific speed and order of this reaction.")
             
-            st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.write(f"**For reactant A (Order {m}):**")
+                st.write(f"- Doubling [A] increases the rate by a factor of {2**m}.")
+                st.write(f"- Halving [A] decreases the rate by a factor of {2**m}.")
+            with col_b:
+                st.write(f"**For reactant B (Order {n}):**")
+                st.write(f"- Doubling [B] increases the rate by a factor of {2**n}.")
+                st.write(f"- Halving [B] decreases the rate by a factor of {2**n}.")
+            
+            st.markdown("---")
+            st.latex(rf"FINAL \ RATE \ LAW: Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Error: Could not find trials with constant concentrations.")
+            st.error("Error: Could not find trials with constant concentrations for calculation.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 
+# 7. FOOTER
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)
+  

@@ -16,7 +16,7 @@ def get_base64(bin_file):
 # Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. UI OVERRIDE (Restored Professional Format)
+# 2. UI OVERRIDE (CSS)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -39,16 +39,22 @@ st.markdown(f"""
         margin-bottom: 15px !important;
         width: 100% !important;
     }}
-    /* Professional Results Master Card */
+    /* NEW: High-Contrast White Results Card */
     .results-card {{
-        background-color: rgba(0, 33, 71, 0.95) !important;
-        padding: 30px !important;
-        border-radius: 25px !important;
+        background-color: rgba(255, 255, 255, 0.98) !important;
+        padding: 35px !important;
+        border-radius: 15px !important;
         border: 4px solid #800000 !important;
         box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
         margin-top: 30px !important;
+        width: 100% !important;
     }}
-    /* Systematic Inputs & Dropdown */
+    /* Black Text for White Card */
+    .results-card h2, .results-card h3, .results-card p, .results-card b, .results-card div {{
+        color: #000000 !important;
+        text-shadow: none !important;
+    }}
+    /* Input Styling */
     div[data-baseweb="input"], div[data-baseweb="select"] {{
         background-color: white !important;
         border-radius: 10px !important;
@@ -65,6 +71,7 @@ st.markdown(f"""
         border: 2px solid white !important;
         border-radius: 12px !important;
         font-weight: bold !important;
+        font-size: 1.2rem !important;
         width: 100% !important;
     }}
     </style>
@@ -78,10 +85,9 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# Main Title Card
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. TRIAL SELECTION (Fits Width Systematically)
+# 4. TRIAL SELECTION
 st.markdown("### Select Number of Experimental Trials")
 num_trials = st.selectbox("Trials", options=[3, 4], index=1, label_visibility="collapsed")
 
@@ -98,14 +104,13 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION & RESULTS (Inside Navy Card)
+# 6. CALCULATION & WHITE BOX OUTPUT
 st.markdown("<br>", unsafe_allow_html=True)
-if st.button("DETERMINE RATE LAW"):
+if st.button("ANALYZE KINETICS"):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Calculate Orders
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -125,37 +130,5 @@ if st.button("DETERMINE RATE LAW"):
             t_last = active_trials[-1]
             k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
-            # Unit calculation for display in Analysis section
             units_map = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
-            unit_display = units_map.get(overall_order, f"M^{1-overall_order}s⁻¹")
-
-            st.balloons()
-            st.markdown('<div class="results-card">', unsafe_allow_html=True)
-            st.markdown('<h2>ANALYSIS COMPLETE</h2>', unsafe_allow_html=True)
-            
-            # Displaying units here as part of the specific k-value calculation
-            st.markdown(f"**Order (m):** {m} | **Order (n):** {n} | **Rate Constant (k):** {k:.4e} {unit_display}")
-            
-            st.markdown('<hr style="border: 1px solid #800000;">', unsafe_allow_html=True)
-            st.markdown('<h3>SCIENTIFIC CONCLUSION</h3>', unsafe_allow_html=True)
-            st.write("According to collision theory, increasing concentration increases the number of particles per volume, leading to more frequent collisions.")
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                st.markdown(f"**Reactant A (Order {m})**")
-                st.write(f"Doubling [A] increases rate {2**m}x")
-            with c2:
-                st.markdown(f"**Reactant B (Order {n})**")
-                st.write(f"Doubling [B] increases rate {2**n}x")
-
-            # Final Equation: k value in brackets, no units mentioned
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.latex(rf"Rate = [{k:.4e}] \ [A]^{{{m}}} [B]^{{{n}}}")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        else:
-            st.error("Error: Constant concentrations not found in experimental trials.")
-    except Exception as e:
-        st.error(f"Calculation Error: {e}")
-
-st.markdown("<p style='margin-top: 50px;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)
+            unit_display = units_

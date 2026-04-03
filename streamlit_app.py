@@ -15,7 +15,7 @@ def get_base64(bin_file):
 
 bin_str = get_base64('my_background.jpg')
 
-# 2. Expert CSS
+# 2. Expert CSS (Branding & Label Alignment)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -28,6 +28,12 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
+    /* Forces the selectbox label to be centered and white within the card */
+    [data-testid="stWidgetLabel"] p {{
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
+        margin-bottom: 10px !important;
+    }}
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
         padding: 20px !important;
@@ -35,10 +41,6 @@ st.markdown(f"""
         border: 4px solid #800000 !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
         margin-bottom: 15px !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
     }}
     .clock-style {{
         background-color: #800000;
@@ -63,25 +65,19 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# Main Title Card
 st.markdown('<div class="unified-card"><h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# --- 4. EXPERT SELECTION (NOW INSIDE THE BOX) ---
-# Opening the navy box div
-st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-
-# Creating columns to keep the dropdown centered and proportional
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    num_trials = st.selectbox(
-        "Select Number of Experimental Trials",
-        options=[3, 4],
-        index=1,
-        help="Choose 3 or 4 trials based on your experimental data set."
-    )
-
-# Closing the navy box div
-st.markdown('</div>', unsafe_allow_html=True)
+# --- 4. EXPERT SELECTION (FIXED INSIDE BOX) ---
+with st.container():
+    st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        num_trials = st.selectbox(
+            "Select Number of Experimental Trials",
+            options=[3, 4],
+            index=1
+        )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. Dynamic Input Layout
 cols = st.columns(num_trials)
@@ -95,7 +91,7 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. Optimized Calculation Logic
+# 6. Calculation Logic
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
@@ -124,29 +120,20 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
 
             st.balloons()
-            # Result Display
             st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-            st.subheader("ANALYSIS COMPLETE")
-            st.write(f"**Order for reactant A (m):** {m}")
-            st.write(f"**Order for reactant B (n):** {n}")
-            st.write(f"**Overall Reaction Order:** {overall_order}")
-            st.write(f"**Rate Constant (k):** {k:.4e} {unit}")
-            st.latex(rf"FINAL \ RATE \ LAW: Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            # --- YOUR ORIGINAL SCIENTIFIC EXPLANATION RESTORED ---
-            st.markdown('<div class="unified-card">', unsafe_allow_html=True)
-            st.subheader("SCIENTIFIC CONCLUSION")
-            
-            explanation_text = (
-                f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
-                f"According to collision theory, increasing concentration means there are more particles per volume, "
-                f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
-                f"reflect the specific speed and order of this reaction."
-            )
-            st.write(explanation_text)
-            
+            st.subheader("ANALYSIS COMPLETE:")
+            st.write(f"Order for reactant A (m): {m}")
+            st.write(f"Order for reactant B (n): {n}")
+            st.write(f"Overall Reaction Order: {overall_order}")
+            st.write(f"Rate Constant (k): {k:.4e} {unit}")
             st.markdown("---")
+            # --- YOUR ORIGINAL SCIENTIFIC EXPLANATION RESTORED ---
+            st.subheader("SCIENTIFIC CONCLUSION:")
+            st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
+                     f"According to collision theory, increasing concentration means there are more particles per volume, "
+                     f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
+                     f"reflect the specific speed and order of this reaction.")
+            
             col_a, col_b = st.columns(2)
             with col_a:
                 st.write(f"**For reactant A (Order {m}):**")
@@ -156,12 +143,14 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                 st.write(f"**For reactant B (Order {n}):**")
                 st.write(f"- Doubling [B] increases the rate by a factor of {2**n}.")
                 st.write(f"- Halving [B] decreases the rate by a factor of {2**n}.")
+            
+            st.markdown("---")
+            st.latex(rf"FINAL \ RATE \ LAW: Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: No constant concentration pairs found. Please check your experimental data.")
-
+            st.error("Scientific Error: No constant concentration pairs found.")
     except Exception as e:
-        st.error(f"Input Error: Ensure all fields contain valid experimental numbers.")
+        st.error(f"Input Error: {e}")
 
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

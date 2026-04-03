@@ -125,14 +125,20 @@ if st.button("DETERMINE RATE LAW"):
             t_last = active_trials[-1]
             k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
+            # Unit calculation for display in Analysis section
+            units_map = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
+            unit_display = units_map.get(overall_order, f"M^{1-overall_order}s⁻¹")
+
             st.balloons()
             st.markdown('<div class="results-card">', unsafe_allow_html=True)
             st.markdown('<h2>ANALYSIS COMPLETE</h2>', unsafe_allow_html=True)
-            st.markdown(f"**Order (m):** {m} | **Order (n):** {n} | **Rate Constant (k):** {k:.4e}")
+            
+            # Displaying units here as part of the specific k-value calculation
+            st.markdown(f"**Order (m):** {m} | **Order (n):** {n} | **Rate Constant (k):** {k:.4e} {unit_display}")
             
             st.markdown('<hr style="border: 1px solid #800000;">', unsafe_allow_html=True)
             st.markdown('<h3>SCIENTIFIC CONCLUSION</h3>', unsafe_allow_html=True)
-            st.write("According to collision theory, increasing concentration increases the number of particles per volume, leading to more frequent successful collisions and a faster rate.")
+            st.write("According to collision theory, increasing concentration increases the number of particles per volume, leading to more frequent collisions.")
             
             c1, c2 = st.columns(2)
             with c1:

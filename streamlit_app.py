@@ -100,7 +100,7 @@ for i, col in enumerate(cols, 1):
 
 # 6. CALCULATION & RESULTS (Inside Navy Card)
 st.markdown("<br>", unsafe_allow_html=True)
-if st.button("RUN SCIENTIFIC ANALYSIS"):
+if st.button("DETERMINE RATE LAW"):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]

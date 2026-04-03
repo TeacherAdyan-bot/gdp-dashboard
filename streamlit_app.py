@@ -16,7 +16,7 @@ def get_base64(bin_file):
 
 bin_str = get_base64('my_background.jpg')
 
-# 2. CSS (FIXED)
+# 2. CSS (FIXED COLORS ISSUE)
 st.markdown(f"""
 <style>
 .stApp {{
@@ -25,7 +25,8 @@ st.markdown(f"""
     background-attachment: fixed;
 }}
 
-h1, h2, h3, h4, p, span, div, label {{
+/* ✅ ONLY TEXT ELEMENTS (no div, no label) */
+h1, h2, h3, h4, p, span {{
     color: white !important;
     text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
     text-align: center !important;
@@ -47,24 +48,26 @@ h1, h2, h3, h4, p, span, div, label {{
     border: 4px solid #800000 !important;
     box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
     margin-top: 30px !important;
-    
-    max-width: 900px;              /* ✅ FIX */
-    margin-left: auto;             /* ✅ CENTER */
-    margin-right: auto;            /* ✅ CENTER */
+
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }}
 
 .results-card * {{
-    word-wrap: break-word !important;   /* ✅ PREVENT OVERFLOW */
+    word-wrap: break-word !important;
     overflow-wrap: break-word !important;
 }}
 
+/* ✅ INPUTS + SELECT FIX */
 div[data-baseweb="input"], div[data-baseweb="select"] {{
     background-color: white !important;
     border-radius: 10px !important;
     border: 2px solid #800000 !important;
 }}
 
-div[data-baseweb="input"] *, div[data-baseweb="select"] * {{
+div[data-baseweb="input"] *,
+div[data-baseweb="select"] * {{
     color: black !important;
     text-shadow: none !important;
     font-weight: bold !important;
@@ -151,7 +154,6 @@ if st.button("ANALYZE KINETICS"):
 
             st.balloons()
 
-            # CENTERED OUTPUT (FIXED FLEX)
             result_html = f"""
             <div class="results-card">
                 <h2>ANALYSIS COMPLETE</h2>
@@ -191,7 +193,6 @@ if st.button("ANALYZE KINETICS"):
             </div>
             """
 
-            # PERFECT CENTER USING COLUMNS
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
                 st.markdown(result_html, unsafe_allow_html=True)

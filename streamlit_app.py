@@ -16,7 +16,7 @@ def get_base64(bin_file):
 # Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. TOTAL UI OVERRIDE (CSS)
+# 2. UI OVERRIDE (Restored Professional Format)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -29,21 +29,32 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    .branded-card {{
+    /* Standard Navy Box for Trial Headers */
+    .trial-header {{
         background-color: rgba(0, 33, 71, 0.95) !important;
-        padding: 30px !important;
+        padding: 15px !important;
         border-radius: 20px !important;
         border: 4px solid #800000 !important;
-        box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
-        margin: 20px auto !important;
-        width: 90% !important;
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.6) !important;
+        margin-bottom: 15px !important;
+        width: 100% !important;
     }}
-    div[data-baseweb="select"], div[data-baseweb="input"] {{
+    /* Professional Results Master Card */
+    .results-card {{
+        background-color: rgba(0, 33, 71, 0.95) !important;
+        padding: 30px !important;
+        border-radius: 25px !important;
+        border: 4px solid #800000 !important;
+        box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
+        margin-top: 30px !important;
+    }}
+    /* Systematic Inputs & Dropdown */
+    div[data-baseweb="input"], div[data-baseweb="select"] {{
         background-color: white !important;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         border: 2px solid #800000 !important;
     }}
-    div[data-baseweb="select"] *, div[data-baseweb="input"] * {{
+    div[data-baseweb="input"] *, div[data-baseweb="select"] * {{
         color: black !important;
         text-shadow: none !important;
         font-weight: bold !important;
@@ -52,8 +63,9 @@ st.markdown(f"""
         background-color: #800000 !important;
         color: white !important;
         border: 2px solid white !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         font-weight: bold !important;
+        width: 100% !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -66,35 +78,34 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# 4. TITLE & SELECTION
-st.markdown('<div class="branded-card">', unsafe_allow_html=True)
-st.markdown('<h1 style="margin-bottom: 25px;">🧪 Chemical Kinetics Determinator</h1>', unsafe_allow_html=True)
-st.markdown('<p style="font-size: 1.2rem;">Select Number of Experimental Trials</p>', unsafe_allow_html=True)
+# Main Title Card
+st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
+
+# 4. TRIAL SELECTION (Fits Width Systematically)
+st.markdown("### Select Number of Experimental Trials")
 num_trials = st.selectbox("Trials", options=[3, 4], index=1, label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
 
 # 5. DYNAMIC TRIAL INPUTS
+st.markdown("<br>", unsafe_allow_html=True)
 cols = st.columns(num_trials)
 trials_data = []
 
 for i, col in enumerate(cols, 1):
     with col:
-        st.markdown(f'<div class="branded-card" style="padding: 15px !important; width: 100% !important;">', unsafe_allow_html=True)
-        st.markdown(f'<h3>Trial {i}</h3>', unsafe_allow_html=True)
-        a = st.number_input(f"Initial [A]", key=f"a{i}", format="%.4e", value=0.1)
-        b = st.number_input(f"Initial [B]", key=f"b{i}", format="%.4e", value=0.1)
-        r = st.number_input(f"Rate", key=f"r{i}", format="%.4e", value=0.001)
+        st.markdown(f'<div class="trial-header"><h3>Trial {i}</h3></div>', unsafe_allow_html=True)
+        a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
+        b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
+        r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
-        st.markdown('</div>', unsafe_allow_html=True)
 
-# 6. CALCULATION & FULL NAVY BOX RESULTS
+# 6. CALCULATION & RESULTS (Inside Navy Card)
 st.markdown("<br>", unsafe_allow_html=True)
-if st.button("RUN SCIENTIFIC ANALYSIS", use_container_width=True):
+if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Calculation logic for orders m and n
+        # Calculate Orders
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -114,38 +125,31 @@ if st.button("RUN SCIENTIFIC ANALYSIS", use_container_width=True):
             t_last = active_trials[-1]
             k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
-            units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
-            unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
-
             st.balloons()
-            
-            # START OF FULL NAVY BOX FOR ANSWERS
-            st.markdown('<div class="branded-card">', unsafe_allow_html=True)
+            st.markdown('<div class="results-card">', unsafe_allow_html=True)
             st.markdown('<h2>ANALYSIS COMPLETE</h2>', unsafe_allow_html=True)
-            st.markdown(f"**Order (m):** {m} | **Order (n):** {n} | **Rate Constant (k):** {k:.4e} {unit}")
+            st.markdown(f"**Order (m):** {m} | **Order (n):** {n} | **Rate Constant (k):** {k:.4e}")
             
             st.markdown('<hr style="border: 1px solid #800000;">', unsafe_allow_html=True)
             st.markdown('<h3>SCIENTIFIC CONCLUSION</h3>', unsafe_allow_html=True)
-            st.write("According to collision theory, increasing concentration leads to more frequent successful collisions.")
+            st.write("According to collision theory, increasing concentration increases the number of particles per volume, leading to more frequent successful collisions and a faster rate.")
             
-            # Side-by-Side Explanation
             c1, c2 = st.columns(2)
             with c1:
-                st.write(f"**Reactant A (Order {m})**")
+                st.markdown(f"**Reactant A (Order {m})**")
                 st.write(f"Doubling [A] increases rate {2**m}x")
             with c2:
-                st.write(f"**Reactant B (Order {n})**")
+                st.markdown(f"**Reactant B (Order {n})**")
                 st.write(f"Doubling [B] increases rate {2**n}x")
 
-            # Final LaTeX Equation (k in brackets, no units)
+            # Final Equation: k value in brackets, no units mentioned
             st.markdown("<br>", unsafe_allow_html=True)
             st.latex(rf"Rate = [{k:.4e}] \ [A]^{{{m}}} [B]^{{{n}}}")
             st.markdown('</div>', unsafe_allow_html=True)
-            # END OF NAVY BOX
             
         else:
-            st.error("Error: Could not find trials with constant concentrations.")
+            st.error("Error: Constant concentrations not found in experimental trials.")
     except Exception as e:
-        st.error(f"Input Error: {e}")
+        st.error(f"Calculation Error: {e}")
 
 st.markdown("<p style='margin-top: 50px;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

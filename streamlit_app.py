@@ -4,7 +4,7 @@ import base64
 from datetime import datetime
 import pytz
 
-# SETUP
+# 1. SETUP
 st.set_page_config(page_title="Britus International School Bahrain", layout="wide")
 
 def get_base64(bin_file):
@@ -16,7 +16,7 @@ def get_base64(bin_file):
 
 bin_str = get_base64('my_background.jpg')
 
-# CSS
+# 2. CSS (FINAL CLEAN VERSION)
 st.markdown(f"""
 <style>
 .stApp {{
@@ -25,11 +25,13 @@ st.markdown(f"""
     background-attachment: fixed;
 }}
 
+/* TEXT ONLY */
 h1, h2, h3, h4, p, span {{
     color: white !important;
     text-align: center !important;
 }}
 
+/* NAVY BOXES */
 .trial-header {{
     background-color: rgba(0, 33, 71, 0.95);
     padding: 15px;
@@ -49,15 +51,16 @@ h1, h2, h3, h4, p, span {{
     margin-right: auto;
 }}
 
-div[data-baseweb="input"], div[data-baseweb="select"] {{
-    background-color: white !important;
-}}
-
-div[data-baseweb="input"] *,
-div[data-baseweb="select"] * {{
+/* INPUTS FIX */
+input {{
     color: black !important;
 }}
 
+div[data-baseweb="select"] span {{
+    color: black !important;
+}}
+
+/* BUTTON */
 .stButton>button {{
     background-color: #800000;
     color: white;
@@ -68,25 +71,26 @@ div[data-baseweb="select"] * {{
 </style>
 """, unsafe_allow_html=True)
 
-# HEADER
+# 3. HEADER
 try:
     st.image("britus_banner.png", use_container_width=True)
 except:
     pass
 
+# CLOCK (FIXED COLOR)
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(
-    f"<div style='background-color:#800000; padding:8px 25px; border-radius:50px; margin:auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>",
+    f"<div style='background-color:#800000; color:white; padding:8px 25px; border-radius:50px; font-weight:bold; border:2px solid white; margin:0 auto 20px auto; display:table;'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>",
     unsafe_allow_html=True
 )
 
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# TRIAL SELECTION
+# 4. TRIAL SELECTION
 st.markdown("### Select Number of Experimental Trials")
 num_trials = st.selectbox("Trials", options=[3, 4], index=1, label_visibility="collapsed")
 
-# INPUTS
+# 5. INPUTS
 cols = st.columns(num_trials)
 trials_data = []
 
@@ -98,13 +102,13 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Rate (M/s)", key=f"r{i}", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# ANALYSIS
+# 6. ANALYSIS
 if st.button("ANALYZE KINETICS"):
     try:
         m, n = None, None
         active = trials_data
 
-        # find m
+        # FIND m
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active[i]['b'] == active[j]['b'] and active[i]['a'] != active[j]['a']:
@@ -114,7 +118,7 @@ if st.button("ANALYZE KINETICS"):
             if m is not None:
                 break
 
-        # find n
+        # FIND n
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active[i]['a'] == active[j]['a'] and active[i]['b'] != active[j]['b']:
@@ -129,7 +133,6 @@ if st.button("ANALYZE KINETICS"):
             t = active[-1]
             k = t['rate'] / ((t['a']**m)*(t['b']**n))
 
-            # SCIENTIFIC BOX OUTPUT
             result_html = f"""
             <div class="results-card">
 
@@ -153,19 +156,18 @@ if st.button("ANALYZE KINETICS"):
             </p>
 
             <p>
-            <b>Reactant A:</b> First order → doubling [A] increases rate ×{2**m}<br>
-            <b>Reactant B:</b> Second order → doubling [B] increases rate ×{2**n}
+            <b>Reactant A:</b> doubling [A] → rate ×{2**m}<br>
+            <b>Reactant B:</b> doubling [B] → rate ×{2**n}
             </p>
 
             <p>
-            Since the overall order is <b>{overall}</b>, the reaction rate is highly dependent on concentration,
-            especially on reactant B.
+            Since the overall order is <b>{overall}</b>, the reaction depends strongly on concentration,
+            especially reactant B.
             </p>
 
             <h3>📌 Conclusion</h3>
             <p>
-            The reaction is more sensitive to changes in reactant B than A, indicating B has a greater influence
-            on the reaction mechanism.
+            Reactant B has a greater influence on the reaction rate than reactant A.
             </p>
 
             </div>
@@ -180,3 +182,4 @@ if st.button("ANALYZE KINETICS"):
 
     except Exception as e:
         st.error(f"Error: {e}")
+

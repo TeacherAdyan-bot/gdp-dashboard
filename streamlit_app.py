@@ -68,8 +68,13 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
+# --- NEW: DYNAMIC TRIAL SLIDER ---
+st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+num_trials = st.select_slider("Select Number of Experimental Trials", options=[3, 4], value=4)
+st.markdown('</div>', unsafe_allow_html=True)
+
 # 4. Experimental Trials (Dynamic Input)
-cols = st.columns(4)
+cols = st.columns(num_trials)
 trials = []
 
 for i, col in enumerate(cols, 1):
@@ -80,23 +85,23 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials.append({'a': a, 'b': b, 'rate': r})
 
-# 5. Calculation Logic (Based on your provided script)
+# 5. Calculation Logic
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
         m, n = None, None
 
-        # Logic to find m (constant [B])
-        for i in range(4):
-            for j in range(4):
+        # Logic to find m (constant [B]) - Searches through available trials
+        for i in range(num_trials):
+            for j in range(num_trials):
                 if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
                     m = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['a'] / trials[i]['a']))
                     break
             if m is not None: break
 
-        # Logic to find n (constant [A])
-        for i in range(4):
-            for j in range(4):
+        # Logic to find n (constant [A]) - Searches through available trials
+        for i in range(num_trials):
+            for j in range(num_trials):
                 if i != j and trials[i]['a'] == trials[j]['a'] and trials[i]['b'] != trials[j]['b']:
                     n = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['b'] / trials[i]['b']))
                     break
@@ -104,7 +109,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
 
         if m is not None and n is not None:
             overall_order = m + n
-            t_ref = trials[0] # Using Trial 1 for k calculation
+            t_ref = trials[0] 
             k = t_ref['rate'] / ((t_ref['a']**m) * (t_ref['b']**n))
             
             # --- UNIT LOGIC ---
@@ -134,18 +139,18 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             col_a, col_b = st.columns(2)
             with col_a:
                 st.write(f"**For reactant A (Order {m}):**")
-                st.write(f"- Doubling [A] increases rate by factor of {2**m}")
-                st.write(f"- Halving [A] decreases rate by factor of {2**m}")
+                st.write(f"- Doubling [A] increases rate by factor of {2**abs(m)}")
+                st.write(f"- Halving [A] decreases rate by factor of {2**abs(m)}")
             with col_b:
                 st.write(f"**For reactant B (Order {n}):**")
-                st.write(f"- Doubling [B] increases rate by factor of {2**n}")
-                st.write(f"- Halving [B] decreases rate by factor of {2**n}")
+                st.write(f"- Doubling [B] increases rate by factor of {2**abs(n)}")
+                st.write(f"- Halving [B] decreases rate by factor of {2**abs(n)}")
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Could not find trials with constant concentrations to solve for m or n.")
+            st.error("Scientific Error: Could not find pairs of trials with constant concentrations. Ensure your data follows the Method of Initial Rates.")
 
     except Exception as e:
-        st.error("Error: Please ensure your data trials allow for the Method of Initial Rates.")
+        st.error("Error: Please ensure your data trials are valid numbers.")
 
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

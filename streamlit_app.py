@@ -16,7 +16,7 @@ def get_base64(bin_file):
 # Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. UI OVERRIDE (CSS)
+# 2. UI OVERRIDE (Professional Navy & Maroon Theme)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -29,7 +29,7 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Standard Navy Box for Trial Headers */
+    /* Branded Navy Header/Trial Boxes */
     .trial-header {{
         background-color: rgba(0, 33, 71, 0.95) !important;
         padding: 15px !important;
@@ -39,20 +39,14 @@ st.markdown(f"""
         margin-bottom: 15px !important;
         width: 100% !important;
     }}
-    /* NEW: High-Contrast White Results Card */
+    /* Results Master Card (Navy Version) */
     .results-card {{
-        background-color: rgba(255, 255, 255, 0.98) !important;
-        padding: 35px !important;
-        border-radius: 15px !important;
+        background-color: rgba(0, 33, 71, 0.95) !important;
+        padding: 30px !important;
+        border-radius: 25px !important;
         border: 4px solid #800000 !important;
         box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
         margin-top: 30px !important;
-        width: 100% !important;
-    }}
-    /* Black Text for White Card */
-    .results-card h2, .results-card h3, .results-card p, .results-card b, .results-card div {{
-        color: #000000 !important;
-        text-shadow: none !important;
     }}
     /* Input Styling */
     div[data-baseweb="input"], div[data-baseweb="select"] {{
@@ -65,6 +59,7 @@ st.markdown(f"""
         text-shadow: none !important;
         font-weight: bold !important;
     }}
+    /* Button Customization */
     .stButton>button {{
         background-color: #800000 !important;
         color: white !important;
@@ -104,7 +99,7 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. CALCULATION & WHITE BOX OUTPUT
+# 6. CALCULATION & NAVY BOX OUTPUT
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("ANALYZE KINETICS"):
     try:
@@ -131,4 +126,39 @@ if st.button("ANALYZE KINETICS"):
             k = t_last['rate'] / ((t_last['a']**m) * (t_last['b']**n))
             
             units_map = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
-            unit_display = units_
+            unit_display = units_map.get(overall_order, f"M^{1-overall_order}s⁻¹")
+
+            st.balloons()
+            
+            # Integrated Navy Box Output
+            result_html = f"""
+            <div class="results-card">
+                <h2 style="margin-bottom: 20px;">ANALYSIS COMPLETE</h2>
+                <p style="font-size: 1.1rem;">
+                    <b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.4e} {unit_display}
+                </p>
+                <hr style="border: 1px solid #800000; margin: 20px 0;">
+                <h3>SCIENTIFIC CONCLUSION</h3>
+                <p>
+                    Collision theory dictates that for a reaction to occur, particles must collide with sufficient energy 
+                    and correct orientation. By increasing the concentration, the frequency of these collisions per 
+                    unit of time increases, which directly results in a higher reaction rate.
+                </p>
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <div><b>Reactant A (Order {m})</b><br>Doubling [A] increases rate {2**m}x</div>
+                    <div><b>Reactant B (Order {n})</b><br>Doubling [B] increases rate {2**n}x</div>
+                </div>
+            </div>
+            """
+            st.markdown(result_html, unsafe_allow_html=True)
+
+            # Final Equation (Below card, k in brackets, no units)
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.latex(rf"Rate = [{k:.4e}] \ [A]^{{{m}}} [B]^{{{n}}}")
+            
+        else:
+            st.error("Error: Could not determine orders from the given data.")
+    except Exception as e:
+        st.error(f"Calculation Error: {e}")
+
+st.markdown("<p style='margin-top: 50px;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

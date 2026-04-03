@@ -15,7 +15,7 @@ def get_base64(bin_file):
 
 bin_str = get_base64('my_background.jpg')
 
-# 2. Expert CSS
+# 2. Expert CSS (Branding & Global Styles)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -23,15 +23,11 @@ st.markdown(f"""
         background-size: cover;
         background-attachment: fixed;
     }}
-
-    /* Global White Font Force */
     h1, h2, h3, p, span, label, [data-testid="stWidgetLabel"] {{
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-
-    /* The Unified Box Style */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
         padding: 20px !important;
@@ -44,7 +40,6 @@ st.markdown(f"""
         justify-content: center;
         align-items: center;
     }}
-
     .clock-style {{
         background-color: #800000;
         color: white;
@@ -55,15 +50,11 @@ st.markdown(f"""
         margin: 0 auto 20px auto;
         display: table;
     }}
-
-    input {{
-        color: black !important;
-        text-shadow: none !important;
-    }}
+    input {{ color: black !important; text-shadow: none !important; font-weight: bold; }}
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Banner & Clock
+# 3. Header & Clock
 try:
     st.image("britus_banner.png", use_container_width=True)
 except: pass
@@ -71,44 +62,90 @@ except: pass
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# 4. THE TITLE BOX FIX
-# We put the text INSIDE the div string so Streamlit cannot separate them
 st.markdown("""
     <div class="unified-card">
         <h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1>
     </div>
     """, unsafe_allow_html=True)
 
-# 5. THE TRIALS FIX
+# 4. Experimental Trials (Dynamic Input)
 cols = st.columns(4)
 trials = []
 
 for i, col in enumerate(cols, 1):
     with col:
-        # Step A: Create the box WITH the Trial Title inside it
-        st.markdown(f"""
-            <div class="unified-card">
-                <h3 style="margin: 0;">Trial {i}</h3>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        # Step B: Inputs appear immediately below the box
+        st.markdown(f'<div class="unified-card"><h3 style="margin: 0;">Trial {i}</h3></div>', unsafe_allow_html=True)
         a = st.number_input(f"Initial [A] (M)", key=f"a{i}", format="%.4e", value=0.1)
         b = st.number_input(f"Initial [B] (M)", key=f"b{i}", format="%.4e", value=0.1)
-        r = st.number_input(f"Initial Rate", key=f"r{i}", format="%.4e", value=0.001)
+        r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials.append({'a': a, 'b': b, 'rate': r})
 
-# 6. Logic
+# 5. Calculation Logic (Based on your provided script)
 st.markdown("<br>", unsafe_allow_html=True)
-if st.button("Calculate Reaction Order", type="primary", use_container_width=True):
+if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
-        m = round(math.log(trials[1]['rate'] / trials[0]['rate']) / math.log(trials[1]['a'] / trials[0]['a']))
-        n = round(math.log(trials[2]['rate'] / trials[0]['rate']) / math.log(trials[2]['b'] / trials[0]['b']))
-        k = trials[0]['rate'] / ((trials[0]['a']**m) * (trials[0]['b']**n))
-        st.balloons()
-        st.success(f"Results: m={m}, n={n}")
-        st.latex(rf"Rate = {k:.4e} \ [A]^{{{m}}} [B]^{{{n}}}")
-    except:
-        st.error("Check experimental data.")
+        m, n = None, None
+
+        # Logic to find m (constant [B])
+        for i in range(4):
+            for j in range(4):
+                if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
+                    m = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['a'] / trials[i]['a']))
+                    break
+            if m is not None: break
+
+        # Logic to find n (constant [A])
+        for i in range(4):
+            for j in range(4):
+                if i != j and trials[i]['a'] == trials[j]['a'] and trials[i]['b'] != trials[j]['b']:
+                    n = round(math.log(trials[j]['rate'] / trials[i]['rate']) / math.log(trials[j]['b'] / trials[i]['b']))
+                    break
+            if n is not None: break
+
+        if m is not None and n is not None:
+            overall_order = m + n
+            t_ref = trials[0] # Using Trial 1 for k calculation
+            k = t_ref['rate'] / ((t_ref['a']**m) * (t_ref['b']**n))
+            
+            # --- UNIT LOGIC ---
+            units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
+            unit = units.get(overall_order, f"M^{1-overall_order}s⁻¹")
+
+            # --- DISPLAY RESULTS ---
+            st.balloons()
+            st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+            st.subheader("ANALYSIS COMPLETE")
+            st.write(f"**Order for A (m):** {m} | **Order for B (n):** {n}")
+            st.write(f"**Overall Order:** {overall_order}")
+            st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            # --- SCIENTIFIC EXPLANATION ---
+            st.markdown('<div class="unified-card">', unsafe_allow_html=True)
+            st.subheader("SCIENTIFIC CONCLUSION")
+            explanation = (
+                f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
+                f"According to collision theory, increasing concentration increases the particles per volume, "
+                f"leading to more collisions and a faster rate. The value of k and its unit ({unit}) "
+                f"reflect the specific speed and order of this reaction."
+            )
+            st.write(explanation)
+            
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.write(f"**For reactant A (Order {m}):**")
+                st.write(f"- Doubling [A] increases rate by factor of {2**m}")
+                st.write(f"- Halving [A] decreases rate by factor of {2**m}")
+            with col_b:
+                st.write(f"**For reactant B (Order {n}):**")
+                st.write(f"- Doubling [B] increases rate by factor of {2**n}")
+                st.write(f"- Halving [B] decreases rate by factor of {2**n}")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        else:
+            st.error("Could not find trials with constant concentrations to solve for m or n.")
+
+    except Exception as e:
+        st.error("Error: Please ensure your data trials allow for the Method of Initial Rates.")
 
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

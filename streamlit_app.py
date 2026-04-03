@@ -4,7 +4,7 @@ import base64
 from datetime import datetime
 import pytz
 
-# 1. Setup
+# 1. SETUP & CONFIGURATION
 st.set_page_config(page_title="Britus International School Bahrain", layout="wide")
 
 def get_base64(bin_file):
@@ -13,10 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Load background (Ensure 'my_background.jpg' is in your GitHub folder)
+# Ensure 'my_background.jpg' is in your GitHub folder
 bin_str = get_base64('my_background.jpg')
 
-# 2. Expert CSS (Branding & Widget Alignment)
+# 2. EXPERT CSS (Branding, Alignment, and Card Uniformity)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -29,10 +29,7 @@ st.markdown(f"""
         text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
         text-align: center !important;
     }}
-    /* Centers the white dropdown and keeps labels clean */
-    [data-testid="stWidgetLabel"] p {{
-        display: none; /* Hides the default Streamlit label to use our custom one */
-    }}
+    /* Standardizes all navy cards to the same width and style */
     .unified-card {{
         background-color: rgba(0, 33, 71, 0.9) !important;
         padding: 20px !important;
@@ -40,6 +37,7 @@ st.markdown(f"""
         border: 4px solid #800000 !important;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.7) !important;
         margin-bottom: 15px !important;
+        width: 100%;
     }}
     .clock-style {{
         background-color: #800000;
@@ -51,12 +49,20 @@ st.markdown(f"""
         margin: 0 auto 20px auto;
         display: table;
     }}
-    div[data-baseweb="select"] {{ background-color: white !important; border-radius: 10px !important; }}
+    /* Styling for the white dropdown box */
+    div[data-baseweb="select"] {{ 
+        background-color: white !important; 
+        border-radius: 10px !important; 
+    }}
+    div[data-baseweb="select"] * {{
+        color: black !important;
+        font-weight: bold !important;
+    }}
     input {{ color: black !important; text-shadow: none !important; font-weight: bold !important; }}
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Header & Clock
+# 3. HEADER & CLOCK
 try:
     st.image("britus_banner.png", use_container_width=True)
 except: pass
@@ -66,15 +72,16 @@ st.markdown(f"<div class='clock-style'>🕒 {datetime.now(bahrain_tz).strftime('
 
 st.markdown('<div class="unified-card"><h1 style="margin: 0; padding: 10px;">🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# --- 4. EXPERT SELECTION (FIXED: LABEL INSIDE BOX) ---
+# 4. EXPERT SELECTION (FULL-WIDTH CARD FIX)
 st.markdown("""
     <div class="unified-card">
-        <h3 style="margin: 0; padding-bottom: 10px;">Select Number of Experimental Trials</h3>
+        <h3 style="margin: 0;">Select Number of Experimental Trials</h3>
     </div>
     """, unsafe_allow_html=True)
 
 with st.container():
-    c1, c2, c3 = st.columns([1, 2, 1])
+    # Centering the actual dropdown while the header box above is full-width
+    c1, c2, c3 = st.columns([1, 1.5, 1])
     with c2:
         num_trials = st.selectbox(
             "Select Number of Experimental Trials",
@@ -83,7 +90,7 @@ with st.container():
             label_visibility="collapsed"
         )
 
-# 5. Dynamic Input Layout
+# 5. DYNAMIC INPUT LAYOUT
 cols = st.columns(num_trials)
 trials_data = []
 
@@ -95,14 +102,14 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 6. Calculation Logic
+# 6. CALCULATION LOGIC
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=True):
     try:
         m, n = None, None
         active_trials = trials_data[:num_trials]
 
-        # Find m (constant [B])
+        # Logic to find m (constant [B])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['b'] == active_trials[j]['b'] and active_trials[i]['a'] != active_trials[j]['a']:
@@ -110,7 +117,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
                     break
             if m is not None: break
 
-        # Find n (constant [A])
+        # Logic to find n (constant [A])
         for i in range(num_trials):
             for j in range(num_trials):
                 if i != j and active_trials[i]['a'] == active_trials[j]['a'] and active_trials[i]['b'] != active_trials[j]['b']:
@@ -133,7 +140,7 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.write(f"Overall Reaction Order: {overall_order}")
             st.write(f"Rate Constant (k): {k:.4e} {unit}")
             
-            # --- SCIENTIFIC EXPLANATION (RESTORED) ---
+            # --- SCIENTIFIC EXPLANATION RESTORED ---
             st.markdown("---")
             st.subheader("SCIENTIFIC CONCLUSION:")
             st.write(f"The rate is proportional to the concentration of A to the power of {m} and B to the power of {n}. "
@@ -156,8 +163,9 @@ if st.button("Analyze Reaction Kinetics", type="primary", use_container_width=Tr
             st.markdown('</div>', unsafe_allow_html=True)
             
         else:
-            st.error("Scientific Error: No constant concentration pairs found. Please check experimental data.")
+            st.error("Scientific Error: No constant concentration pairs found. Please check Trial values.")
     except Exception as e:
         st.error(f"Input Error: {e}")
 
+# 7. FOOTER
 st.markdown("<p style='text-align: center;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

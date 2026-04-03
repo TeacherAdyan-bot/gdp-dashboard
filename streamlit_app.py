@@ -9,81 +9,81 @@ st.set_page_config(page_title="Britus International School Bahrain", layout="wid
 
 # 2. Function to load your local background image (my_background.jpg)
 def get_base64(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except:
+        return None
 
-# Try to load your background file
-try:
-    bin_str = get_base64('my_background.jpg')
-    bg_style = f"""
-    <style>
-    .stApp {{
-        background-image: url("data:image/png;base64,{bin_str}");
-        background-size: cover;
-        background-attachment: fixed;
-    }}
-    </style>
-    """
-    st.markdown(bg_style, unsafe_allow_html=True)
-except:
-    st.markdown("<style>.stApp {background-color: #002147;}</style>", unsafe_allow_html=True)
+# Apply Background Styling
+bin_str = get_base64('my_background.jpg')
+if bin_str:
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/png;base64,{bin_str}");
+            background-size: cover;
+            background-attachment: fixed;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
 
-# 3. Custom Styling (White Font & High Visibility)
+# 3. White Font & High-Contrast CSS
 st.markdown("""
     <style>
-    /* The main boundary box */
+    /* Main container box with a darker tint to make white text pop */
     .calculator-container {
-        background-color: rgba(0, 33, 71, 0.85); /* Dark Blue with transparency */
-        padding: 35px;
+        background-color: rgba(0, 33, 71, 0.8); /* Britus Navy with transparency */
+        padding: 40px;
         border-radius: 25px;
         border: 4px solid #800000; /* Britus Maroon */
-        box-shadow: 0px 15px 35px rgba(0,0,0,0.6);
+        box-shadow: 0px 15px 35px rgba(0,0,0,0.7);
         margin-top: 10px;
-        color: white; /* Forces white text inside the box */
     }
     
-    /* Making all Streamlit labels and text white */
-    .stMarkdown, p, span, label, h1, h2, h3 {
+    /* FORCE WHITE FONT EVERYWHERE */
+    h1, h2, h3, p, span, label, .stMarkdown {
         color: white !important;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
 
-    /* Styling the Clock */
+    /* Style the Bahrain Clock */
     .clock-style {
-        background-color: #800000; 
+        background-color: #800000;
         color: white;
         padding: 12px 25px;
         border-radius: 50px;
         font-weight: bold;
         display: inline-block;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         border: 2px solid white;
     }
 
-    /* Making the number inputs stand out */
+    /* Keep Input Boxes readable (Black text inside white boxes) */
     .stNumberInput input {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        color: black !important; /* Keep the actual numbers black for readability */
+        color: black !important;
+        background-color: white !important;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. Top Banner (britus_banner.png)
+# 4. Top School Banner
 try:
     st.image("britus_banner.png", use_container_width=True)
 except:
-    st.error("Missing 'britus_banner.png' in your GitHub folder.")
+    st.warning("Banner 'britus_banner.png' not found. Please upload it to GitHub.")
 
 # 5. Bahrain Clock
 bahrain_tz = pytz.timezone('Asia/Bahrain')
 now = datetime.now(bahrain_tz)
 st.markdown(f"<div class='clock-style'>🕒 Bahrain Time: {now.strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
-# 6. Calculator Content
+# 6. Calculator Logic
 st.markdown('<div class="calculator-container">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align:center;'>🧪 Chemical Kinetics: Rate Law Determinator</h2>", unsafe_allow_html=True)
-st.write("Enter experimental data. Scientific notation (e.g., **2e-3**) is supported.")
+st.write("Enter your experimental data below. Scientific notation (e.g., **1.5e-3**) is supported.")
 
 cols = st.columns(4)
 trials = []
@@ -98,7 +98,7 @@ for i, col in enumerate(cols, 1):
 if st.button("Calculate Reaction Order & k"):
     m, n = None, None
     
-    # Math Logic
+    # Calculation Logic
     for i in range(4):
         for j in range(4):
             if i != j and trials[i]['b'] == trials[j]['b'] and trials[i]['a'] != trials[j]['a']:
@@ -120,11 +120,12 @@ if st.button("Calculate Reaction Order & k"):
         units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
         unit = units.get(overall, f"M^{1-overall}s⁻¹")
 
-        st.success(f"Analysis Complete! Order A: {m} | Order B: {n}")
+        st.success(f"Analysis Complete!")
+        st.write(f"**Order of A:** {m} | **Order of B:** {n}")
         st.info(f"Rate Constant (k): {k:.4e} {unit}")
         st.latex(rf"Rate = {k:.4e} \ {unit} \ [A]^{{{m}}} [B]^{{{n}}}")
     else:
-        st.error("Error: Check your concentration data for constant values.")
+        st.error("Check data: Could not find constant concentrations between trials.")
 
 st.markdown('</div>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; margin-top: 15px;'><b>Learning Without Limits - Science Department</b></p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; margin-top: 20px;'><b>Learning Without Limits - Science Department</b></p>", unsafe_allow_html=True)

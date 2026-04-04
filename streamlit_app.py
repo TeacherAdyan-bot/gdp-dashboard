@@ -116,9 +116,9 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <hr style="border: 1px solid #800000; margin: 25px 0;">
                 <h3>SCIENTIFIC CONCLUSION</h3>
                 <p>
-                    Collision theory dictates that for a reaction to occur, particles must collide with sufficient energy 
-                    and correct orientation. By increasing the concentration, the frequency of these collisions per 
-                    unit of time increases, which directly results in a higher reaction rate.
+              According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and
+              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases,
+              leading to a higher frequency of effective collisions and a faster reaction rate.
                 </p>
                 <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
                     <div>Reactant A (Order {m})<br>Doubling [A] increases rate {2**m}x</div>

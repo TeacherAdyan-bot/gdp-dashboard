@@ -75,10 +75,9 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25p
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
 # 4. TRIAL INPUTS
-# --- ADDED DROPDOWN HERE ---
+# Added the selection dropbox here
 num_trials = st.selectbox("Select Number of Trials", options=[3, 4], index=0)
 cols = st.columns(num_trials)
-# ---------------------------
 
 trials_data = []
 for i, col in enumerate(cols, 1):
@@ -95,7 +94,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
         
-        # Expert logic to find constant pairs automatically across 3 or 4 trials
+        # Expert logic to automatically find constant concentration pairs
         for i in range(len(trials_data)):
             for j in range(i + 1, len(trials_data)):
                 # Finding m: [B] is constant, [A] changes
@@ -125,8 +124,8 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <hr style="border: 1px solid #800000; margin: 25px 0;">
                 <h3>SCIENTIFIC CONCLUSION</h3>
                 <p>
-              According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and
-              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases,
+              According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and 
+              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases, 
               leading to a higher frequency of effective collisions and a faster reaction rate.
                 </p>
                 <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
@@ -142,7 +141,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.error("Error: Could not determine orders. Ensure concentration is constant between at least two pairs of trials.")
+            st.error("Error: Could not determine orders. Ensure concentration is constant between at least two trials.")
     except Exception as e:
         st.error(f"Analysis Error: {e}")
 

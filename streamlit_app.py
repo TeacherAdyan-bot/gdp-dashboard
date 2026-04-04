@@ -42,19 +42,19 @@ st.markdown(f"""
         width: 100% !important;
     }}
 
-    .results-card {{
-        background-color: rgba(0, 33, 71, 0.95) !important;
-        padding: 30px !important;
-        border-radius: 25px !important;
-        border: 4px solid #800000 !important;
-        box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
-        margin-top: 30px !important;
+ .results-card  {{
+    background-color: rgba(0, 33, 71, 0.95) !important;
+    padding: 30px !important;
+    border-radius: 25px !important;
+    border: 4px solid #800000 !important;
+    box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
+    margin-top: 30px !important;
+    width: 100% !important;
+    max-width: 900px;   /* ✅ ADD THIS */
+    margin-left: auto;  /* ✅ CENTER */
+    margin-right: auto; /* ✅ CENTER */
+ }}
 
-        /* ✅ FIX: prevent overflow */
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-    }}
 
     /* ✅ FIX: prevent text overflow */
     .results-card * {{
@@ -89,6 +89,7 @@ st.markdown(f"""
     }}
     </style>
     """, unsafe_allow_html=True)
+
 
 # 3. BRANDING & CLOCK
 try:
@@ -174,19 +175,19 @@ if st.button("ANALYZE KINETICS"):
                     Increasing concentration increases collision frequency, leading to a higher reaction rate.
                 </p>
 
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 20px;
-                    flex-wrap: wrap;
-                    margin-top: 20px;
-                ">
-                    <div style="flex:1; min-width:220px;">
+               <div style="
+    display: flex; 
+    justify-content: space-between; 
+    gap: 20px; 
+    flex-wrap: wrap;
+">
+
+                    <div style="flex:1; min-width:200px;">
                         <b>Reactant A (Order {m})</b><br>
                         Doubling [A] increases rate ×{2**m}
                     </div>
 
-                    <div style="flex:1; min-width:220px;">
+                    <div style="flex:1; min-width:200px;">
                         <b>Reactant B (Order {n})</b><br>
                         Doubling [B] increases rate ×{2**n}
                     </div>

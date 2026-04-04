@@ -115,7 +115,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
             <div class="results-card">
                 <h2>ANALYSIS COMPLETE</h2>
                 <p style="font-size: 1.2rem;">
-                    <b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.4e} {units}
+                    <b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.1e} {units}
                 </p>
                 <hr style="border: 1px solid #800000; margin: 25px 0;">
                 <h3>SCIENTIFIC CONCLUSION</h3>

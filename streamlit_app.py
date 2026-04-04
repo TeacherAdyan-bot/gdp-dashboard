@@ -88,15 +88,17 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 5. ANALYSIS LOGIC & OUTPUT
+# 5. ANALYSIS LOGIC & INTEGRATED OUTPUT
 st.markdown("<br>", unsafe_allow_html=True)
 if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
         
+        # Calculate Order m (where [B] is constant)
         if trials_data[0]['b'] == trials_data[1]['b']:
             m = round(math.log(trials_data[1]['rate'] / trials_data[0]['rate']) / math.log(trials_data[1]['a'] / trials_data[0]['a']))
         
+        # Calculate Order n (where [A] is constant)
         if trials_data[1]['a'] == trials_data[2]['a']:
             n = round(math.log(trials_data[2]['rate'] / trials_data[1]['rate']) / math.log(trials_data[2]['b'] / trials_data[1]['b']))
 
@@ -105,38 +107,39 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
             t1 = trials_data[0]
             k = t1['rate'] / ((t1['a']**m) * (t1['b']**n))
             
-            # Unit Calculation Logic
+            # Dynamic Unit Calculation
             units_map = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}
             unit_display = units_map.get(overall_order, f"M^{1-overall_order}s⁻¹")
 
             st.balloons()
             
-            # Integrated Container for Analysis, Conclusion, and Equation
+            # Start the Card (The box opens here)
             st.markdown(f"""
             <div class="results-card">
                 <h2>ANALYSIS COMPLETE</h2>
                 <p style="font-size: 1.1rem;">
                     <b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.4e} {unit_display}
                 </p>
-                <hr style="border: 1px solid #800000; margin: 20px 0;">
+                <hr style="border: 1px solid #800000; margin: 25px 0;">
                 <h3>SCIENTIFIC CONCLUSION</h3>
                 <p>Collision theory dictates that for a reaction to occur, particles must collide with sufficient energy and correct orientation. 
                 By increasing the concentration, the frequency of these collisions per unit of time increases, resulting in a higher rate.</p>
-                <div style="display: flex; justify-content: space-around; margin: 20px 0; font-weight: bold;">
+                <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
                     <div>Reactant A (Order {m})<br>Doubling [A] increases rate {2**m}x</div>
                     <div>Reactant B (Order {n})<br>Doubling [B] increases rate {2**n}x</div>
                 </div>
-                <div style="margin-top: 30px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
-                    <p style="margin-bottom: 5px; font-weight: bold;">FINAL RATE LAW:</p>
+                <div style="margin-top: 35px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="margin-bottom: 5px; font-weight: bold; color: #800000 !important;">FINAL RATE LAW:</p>
             """, unsafe_allow_html=True)
             
-            # Render LaTeX inside the box structure
+            # Render the Equation (Captured inside the open div)
             st.latex(rf"Rate = [{k:.4e}] \ [A]^{{{m}}} [B]^{{{n}}}")
             
+            # Close the Card (The box finishes here)
             st.markdown('</div></div>', unsafe_allow_html=True)
             
         else:
-            st.error("Error: Could not determine orders. Ensure concentration is constant between specific trials.")
+            st.error("Error: Ensure your data has trials where one concentration remains constant.")
     except Exception as e:
         st.error(f"Analysis Error: {e}")
 

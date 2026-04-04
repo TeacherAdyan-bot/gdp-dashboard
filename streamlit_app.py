@@ -61,6 +61,11 @@ st.markdown(f"""
         border-radius: 12px !important;
         width: 100% !important;
     }}
+    /* Style for the selectbox label */
+    .stSelectbox label p {{
+        font-size: 1.2rem !important;
+        font-weight: bold !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -74,8 +79,11 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25p
 
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. TRIAL INPUTS
-cols = st.columns(3)
+# 4. TRIAL SELECTION & INPUTS
+# Added the Dropdown box here
+num_trials = st.selectbox("Select Number of Trials:", options=[3, 4], index=0)
+
+cols = st.columns(num_trials)
 trials_data = []
 for i, col in enumerate(cols, 1):
     with col:
@@ -90,11 +98,20 @@ st.markdown("<br>", unsafe_allow_html=True)
 if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
+        
         # Order Calculation Logic
-        if trials_data[0]['b'] == trials_data[1]['b']:
-            m = round(math.log(trials_data[1]['rate'] / trials_data[0]['rate']) / math.log(trials_data[1]['a'] / trials_data[0]['a']))
-        if trials_data[1]['a'] == trials_data[2]['a']:
-            n = round(math.log(trials_data[2]['rate'] / trials_data[1]['rate']) / math.log(trials_data[2]['b'] / trials_data[1]['b']))
+        # We look for two trials where B is constant to find m (order of A)
+        # We look for two trials where A is constant to find n (order of B)
+        
+        # Expert logic to find constant pairs automatically
+        for i in range(len(trials_data)):
+            for j in range(i + 1, len(trials_data)):
+                # Finding m: [B] is constant, [A] changes
+                if trials_data[i]['b'] == trials_data[j]['b'] and trials_data[i]['a'] != trials_data[j]['a']:
+                    m = round(math.log(trials_data[j]['rate'] / trials_data[i]['rate']) / math.log(trials_data[j]['a'] / trials_data[i]['a']))
+                # Finding n: [A] is constant, [B] changes
+                if trials_data[i]['a'] == trials_data[j]['a'] and trials_data[i]['b'] != trials_data[j]['b']:
+                    n = round(math.log(trials_data[j]['rate'] / trials_data[i]['rate']) / math.log(trials_data[j]['b'] / trials_data[i]['b']))
 
         if m is not None and n is not None:
             overall_order = m + n
@@ -105,8 +122,6 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
 
             st.balloons()
             
-            # THE HARD-LOCK FIX: 
-            # Write the Final Rate Law as HTML inside the SAME string.
             st.markdown(f"""
             <div class="results-card">
                 <h2>ANALYSIS COMPLETE</h2>
@@ -116,8 +131,8 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <hr style="border: 1px solid #800000; margin: 25px 0;">
                 <h3>SCIENTIFIC CONCLUSION</h3>
                 <p>
-              According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and
-              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases,
+              According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and 
+              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases, 
               leading to a higher frequency of effective collisions and a faster reaction rate.
                 </p>
                 <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
@@ -133,7 +148,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.error("Error: Could not determine orders. Ensure concentration is constant between trials.")
+            st.error("Error: Could not determine orders. Ensure your data includes trials where one concentration remains constant while the other changes.")
     except Exception as e:
         st.error(f"Analysis Error: {e}")
 

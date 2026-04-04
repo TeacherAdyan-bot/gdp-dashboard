@@ -4,7 +4,7 @@ import base64
 from datetime import datetime
 import pytz
 
-# 1. SETUP
+# 1. SETUP & CONFIGURATION
 st.set_page_config(page_title="Britus International School Bahrain", layout="wide")
 
 def get_base64(bin_file):
@@ -13,9 +13,10 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
+# Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. CSS (Added overflow:hidden and display:inline-block to force containment)
+# 2. UI OVERRIDE (Expert CSS for Full Containment)
 st.markdown(f"""
     <style>
     .stApp {{
@@ -35,6 +36,7 @@ st.markdown(f"""
         border: 4px solid #800000 !important;
         margin-bottom: 15px !important;
     }}
+    /* The Master Container */
     .results-card {{
         background-color: rgba(0, 33, 71, 0.95) !important;
         padding: 40px !important;
@@ -43,7 +45,6 @@ st.markdown(f"""
         box-shadow: 0px 15px 35px rgba(0,0,0,0.8) !important;
         width: 100% !important;
         display: block !important;
-        overflow: hidden !important;
     }}
     div[data-baseweb="input"] {{
         background-color: white !important;
@@ -58,10 +59,7 @@ st.markdown(f"""
         color: white !important;
         border: 2px solid white !important;
         border-radius: 12px !important;
-    }}
-    /* This forces Streamlit's internal latex div to respect the parent color */
-    .stLatex div {{
-        color: white !important;
+        width: 100% !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -76,7 +74,7 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25p
 
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
-# 4. INPUTS
+# 4. TRIAL INPUTS
 cols = st.columns(3)
 trials_data = []
 for i, col in enumerate(cols, 1):
@@ -87,13 +85,12 @@ for i, col in enumerate(cols, 1):
         r = st.number_input(f"Initial Rate (M/s)", key=f"r{i}", format="%.4e", value=0.001)
         trials_data.append({'a': a, 'b': b, 'rate': r})
 
-# 5. THE TRICK: THE CONTAINER PLACEHOLDER
-# We create the container BEFORE the button is clicked.
-results_container = st.container()
-
+# 5. INTEGRATED ANALYSIS & OUTPUT
+st.markdown("<br>", unsafe_allow_html=True)
 if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
+        # Order Calculation Logic
         if trials_data[0]['b'] == trials_data[1]['b']:
             m = round(math.log(trials_data[1]['rate'] / trials_data[0]['rate']) / math.log(trials_data[1]['a'] / trials_data[0]['a']))
         if trials_data[1]['a'] == trials_data[2]['a']:
@@ -102,31 +99,42 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
         if m is not None and n is not None:
             overall_order = m + n
             k = trials_data[0]['rate'] / ((trials_data[0]['a']**m) * (trials_data[0]['b']**n))
+            
+            # Unit Mapping
             units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}.get(overall_order, "M⁻ⁿs⁻¹")
 
             st.balloons()
             
-            # Use the placeholder to wrap EVERYTHING
-            with results_container:
-                # Top part of box
-                st.markdown(f"""
-                <div class="results-card">
-                    <h2>ANALYSIS COMPLETE</h2>
-                    <p style="font-size: 1.1rem;"><b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.4e} {units}</p>
-                    <hr style="border: 1px solid #800000; margin: 20px 0;">
-                    <h3>SCIENTIFIC CONCLUSION</h3>
-                    <p>Collision theory dictates that for a reaction to occur, particles must collide with sufficient energy and correct orientation. 
-                    By increasing the concentration, the frequency of these collisions per unit of time increases, resulting in a higher rate.</p>
-                """, unsafe_allow_html=True)
-                
-                # The Equation (Now inside the 'with' block)
-                st.latex(rf"Rate = [{k:.4e}] \ [A]^{{{m}}} [B]^{{{n}}}")
-                
-                # Close the box
-                st.markdown('</div>', unsafe_allow_html=True)
+            # THE HARD-LOCK FIX: 
+            # Write the Final Rate Law as HTML inside the SAME string.
+            st.markdown(f"""
+            <div class="results-card">
+                <h2>ANALYSIS COMPLETE</h2>
+                <p style="font-size: 1.2rem;">
+                    <b>Order (m):</b> {m} | <b>Order (n):</b> {n} | <b>Rate Constant (k):</b> {k:.4e} {units}
+                </p>
+                <hr style="border: 1px solid #800000; margin: 25px 0;">
+                <h3>SCIENTIFIC CONCLUSION</h3>
+                <p>
+                    Collision theory dictates that for a reaction to occur, particles must collide with sufficient energy 
+                    and correct orientation. By increasing the concentration, the frequency of these collisions per 
+                    unit of time increases, which directly results in a higher reaction rate.
+                </p>
+                <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
+                    <div>Reactant A (Order {m})<br>Doubling [A] increases rate {2**m}x</div>
+                    <div>Reactant B (Order {n})<br>Doubling [B] increases rate {2**n}x</div>
+                </div>
+                <div style="margin-top: 35px; background: rgba(255,255,255,0.08); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);">
+                    <p style="margin-bottom: 10px; font-weight: bold; color: #800000 !important;">FINAL RATE LAW:</p>
+                    <p style="font-size: 1.8rem; font-family: 'Times New Roman', serif;">
+                        <i>Rate</i> = [{k:.4e}] [A]<sup>{m}</sup> [B]<sup>{n}</sup>
+                    </p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.error("Error: Constant concentration not found between trials.")
+            st.error("Error: Could not determine orders. Ensure concentration is constant between trials.")
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Analysis Error: {e}")
 
 st.markdown("<p style='margin-top: 50px;'>Learning Without Limits - Science Department</p>", unsafe_allow_html=True)

@@ -131,7 +131,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <div style="margin-top: 35px; background: rgba(255,255,255,0.08); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);">
                     <p style="margin-bottom: 10px; font-weight: bold; color: #800000 !important;">FINAL RATE LAW:</p>
                     <p style="font-size: 1.8rem; font-family: 'Times New Roman', serif;">
-                        <i>Rate</i> = [{k:.4e} {units}] [A]<sup>{m}</sup> [B]<sup>{n}</sup>
+                        <i>Rate</i> = [{k:.1e} {units}] [A]<sup>{m}</sup> [B]<sup>{n}</sup>
                     </p>
                 </div>
             </div>

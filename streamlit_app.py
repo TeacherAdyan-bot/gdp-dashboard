@@ -13,10 +13,9 @@ def get_base64(bin_file):
             return base64.b64encode(f.read()).decode()
     except: return ""
 
-# Background image handling
 bin_str = get_base64('my_background.jpg')
 
-# 2. UI OVERRIDE (Expert CSS for Full Containment)
+# 2. UI OVERRIDE
 st.markdown(f"""
     <style>
     .stApp {{
@@ -36,7 +35,6 @@ st.markdown(f"""
         border: 4px solid #800000 !important;
         margin-bottom: 15px !important;
     }}
-    /* The Master Container */
     .results-card {{
         background-color: rgba(0, 33, 71, 0.95) !important;
         padding: 40px !important;
@@ -75,7 +73,6 @@ st.markdown(f"<div style='background-color:#800000; color:white; padding:8px 25p
 st.markdown('<div class="trial-header"><h1>🧪 Chemical Kinetics: Rate Law Determinator</h1></div>', unsafe_allow_html=True)
 
 # 4. TRIAL INPUTS
-# Added the selection dropbox here
 num_trials = st.selectbox("Select Number of Trials", options=[3, 4], index=0)
 cols = st.columns(num_trials)
 
@@ -93,14 +90,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 if st.button("RUN SCIENTIFIC ANALYSIS"):
     try:
         m, n = None, None
-        
-        # Expert logic to automatically find constant concentration pairs
         for i in range(len(trials_data)):
             for j in range(i + 1, len(trials_data)):
-                # Finding m: [B] is constant, [A] changes
                 if trials_data[i]['b'] == trials_data[j]['b'] and trials_data[i]['a'] != trials_data[j]['a'] and m is None:
                     m = round(math.log(trials_data[j]['rate'] / trials_data[i]['rate']) / math.log(trials_data[j]['a'] / trials_data[i]['a']))
-                # Finding n: [A] is constant, [B] changes
                 if trials_data[i]['a'] == trials_data[j]['a'] and trials_data[i]['b'] != trials_data[j]['b'] and n is None:
                     n = round(math.log(trials_data[j]['rate'] / trials_data[i]['rate']) / math.log(trials_data[j]['b'] / trials_data[i]['b']))
 
@@ -108,13 +101,16 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
             overall_order = m + n
             k = trials_data[0]['rate'] / ((trials_data[0]['a']**m) * (trials_data[0]['b']**n))
             
-            # Unit Mapping
-            units = {0: "M/s", 1: "s⁻¹", 2: "M⁻¹s⁻¹", 3: "M⁻²s⁻¹"}.get(overall_order, "M⁻ⁿs⁻¹")
+            # CORRECTED UNIT MAPPING
+            units = {
+                0: "M/s", 
+                1: "s⁻¹", 
+                2: "M⁻¹s⁻¹", 
+                3: "M⁻²s⁻¹"
+            }.get(overall_order, f"M^{1-overall_order}s⁻¹")
 
             st.balloons()
             
-            # THE HARD-LOCK FIX: 
-            # Write the Final Rate Law as HTML inside the SAME string.
             st.markdown(f"""
             <div class="results-card">
                 <h2>ANALYSIS COMPLETE</h2>
@@ -135,13 +131,13 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <div style="margin-top: 35px; background: rgba(255,255,255,0.08); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);">
                     <p style="margin-bottom: 10px; font-weight: bold; color: #800000 !important;">FINAL RATE LAW:</p>
                     <p style="font-size: 1.8rem; font-family: 'Times New Roman', serif;">
-                        <i>Rate</i> = [{k:.4e}] [A]<sup>{m}</sup> [B]<sup>{n}</sup>
+                        <i>Rate</i> = [{k:.4e} {units}] [A]<sup>{m}</sup> [B]<sup>{n}</sup>
                     </p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.error("Error: Could not determine orders. Ensure concentration is constant between at least two trials.")
+            st.error("Error: Could not determine orders.")
     except Exception as e:
         st.error(f"Analysis Error: {e}")
 

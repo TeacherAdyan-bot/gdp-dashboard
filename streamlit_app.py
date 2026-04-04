@@ -121,7 +121,7 @@ if st.button("RUN SCIENTIFIC ANALYSIS"):
                 <h3>SCIENTIFIC CONCLUSION</h3>
                 <p>
               According to collision theory, a chemical reaction occurs only when reacting particles collide with sufficient kinetic energy and 
-              a favorable orientation. By increasing the concentration of reactants, the number of particles per unit volume increases, 
+             proper orientation. By increasing the concentration of reactants, the number of particles per unit volume increases, 
               leading to a higher frequency of effective collisions and a faster reaction rate.
                 </p>
                 <div style="display: flex; justify-content: space-around; margin: 25px 0; font-weight: bold;">
